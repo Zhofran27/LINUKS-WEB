@@ -16,6 +16,8 @@ const statusSeeds = [
   { name: 'Ditolak' },
 ];
 
+
+
 await db.insert(categories).values(categorySeeds).onConflictDoNothing();
 await db.insert(statuses).values(statusSeeds).onConflictDoNothing();
 
