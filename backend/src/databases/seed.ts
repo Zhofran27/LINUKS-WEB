@@ -4,9 +4,10 @@ import { db, pool } from './db';
 import { categories, statuses, users } from './schema';
 
 const categorySeeds = [
-  { name: 'Verbal' },
-  { name: 'Non-Verbal' },
-  { name: 'Lainnya' },
+  { name: 'Physical Safety' },
+  { name: 'Digital Security' },
+  { name: 'Harassment' },
+  { name: 'Others'}
 ];
 
 const statusSeeds = [
