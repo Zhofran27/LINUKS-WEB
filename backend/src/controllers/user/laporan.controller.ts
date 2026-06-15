@@ -67,7 +67,10 @@ export const CreateLaporan = async (
         })
         .returning({ id: reports.id });
 
-        return res.status(201).json(newReport);
+        return res.status(201).json({
+            message: 'Report created successfully',
+            reportId: newReport[0].id,
+        });
 
     } catch (error) {
         next(error);
@@ -109,6 +112,10 @@ export const getLaporanById = async (
 ) => {
     try {
         const reportId =  Number(req.params.id);
+        if (Number.isNaN(reportId)) {
+            return res.status(400).json({ error: 'Invalid report id' });
+        }
+
         const report = await db
         .select()
         .from(reports)
@@ -126,7 +133,11 @@ export const getLaporanByCategory = async (
     next: NextFunction
 ) => {
     try {
-        const categoryId = Number(req.params.id);
+        const categoryId = Number(req.params.category_id);
+        if (Number.isNaN(categoryId)) {
+            return res.status(400).json({ error: 'Invalid category id' });
+        }
+
         const report = await db
         .select()
         .from(reports)
@@ -148,7 +159,7 @@ export const getLaporanByNama = async (
     next: NextFunction
 ) => {
     try {
-        const name = req.query.name as string;
+        const name = String(req.params.name);
         const report = await db
         .select()
         .from(reports)
@@ -171,6 +182,10 @@ export const deleteLaporan = async (
 ) => {
     try {
         const reportId = Number(req.params.id);
+        if (Number.isNaN(reportId)) {
+            return res.status(400).json({ error: 'Invalid report id' });
+        }
+
         const report = await db
         .select()
         .from(reports)
