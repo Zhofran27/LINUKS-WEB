@@ -22,6 +22,7 @@ export const reports = pgTable('reports', {
   category_id: integer('category_id').notNull().references(() => categories.id),
   status_id: integer('status_id').notNull().references(() => statuses.id),
   title: varchar('title', { length: 255 }).notNull(),
+  description: text('description').notNull(),
   chronology: text('chronology').notNull(),
   location: varchar('location', { length: 255 }).notNull(),
   incident_date: timestamp('incident_date').notNull(),
