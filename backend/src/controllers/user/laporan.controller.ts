@@ -3,6 +3,7 @@ import { AuthRequest } from '../../middlewares/auth.middleware';
 import { eq } from 'drizzle-orm';
 import { db } from '../../databases/db';
 import { categories, reports, statuses, users } from '../../databases/schema';
+import { formatReportCode, withReportCode } from '../../utils/report-code';
 
 export const CreateLaporan = async (
     req: AuthRequest,
@@ -70,6 +71,7 @@ export const CreateLaporan = async (
         return res.status(201).json({
             message: 'Report created successfully',
             reportId: newReport[0].id,
+            report_code: formatReportCode(newReport[0].id),
         });
 
     } catch (error) {
@@ -99,7 +101,7 @@ export const getLaporanByUser = async (
         .from(reports)
         .where(eq(reports.user_id, userId));
 
-        return res.status(200).json(report);
+        return res.status(200).json(report.map(withReportCode));
     } catch (error) {
         next(error);
     }
@@ -121,7 +123,7 @@ export const getLaporanById = async (
         .from(reports)
         .where(eq(reports.id, reportId));
 
-        return res.status(200).json(report);
+        return res.status(200).json(report.map(withReportCode));
     } catch (error) {
         next(error);
     }
@@ -147,7 +149,7 @@ export const getLaporanByCategory = async (
             return res.status(404).json({ error: 'Report not found' });
         }
 
-        return res.status(200).json(report);
+        return res.status(200).json(report.map(withReportCode));
     } catch (error) {
         next(error);
     }
@@ -169,7 +171,7 @@ export const getLaporanByNama = async (
             return res.status(404).json({ error: 'Report not found' });
         }
 
-        return res.status(200).json(report);
+        return res.status(200).json(report.map(withReportCode));
     } catch (error) {
         next(error);
     }
