@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express'
 import { AuthRequest } from '../../middlewares/auth.middleware';
 import { and, count, eq, gte, lt } from 'drizzle-orm';
 import { db } from '../../databases/db';
-import { reports, categories, statuses } from '../../databases/schema';
+import { reports, categories, statuses, report_files } from '../../databases/schema';
 import { withReportCode } from '../../utils/report-code';
 
 const getCountValue = (result: { total: number }[]) => result[0]?.total ?? 0;
@@ -17,8 +17,10 @@ export const getLaporan = async (req: AuthRequest, res: Response, next: NextFunc
                 incident_date: reports.incident_date,
                 created_at: reports.created_at,
                 is_anonymous: reports.is_anonymous,
+                file_path: report_files.file_path
             })
             .from(reports)
+            .leftJoin(report_files, eq(reports.id, report_files.report_id))
             .innerJoin(categories, eq(categories.id, reports.category_id))
             .innerJoin(statuses, eq(statuses.id, reports.status_id))
 
@@ -95,8 +97,10 @@ export const getLaporanById = async (req: AuthRequest, res: Response, next: Next
                 is_anonymous: reports.is_anonymous,
                 user_id: reports.user_id,
                 created_at: reports.created_at,
+                file_path: report_files.file_path
             })
             .from(reports)
+            .leftJoin(report_files, eq(reports.id, report_files.report_id))
             .innerJoin(categories, eq(categories.id, reports.category_id))
             .innerJoin(statuses, eq(statuses.id, reports.status_id))
             .where(eq(reports.id, reportId));
@@ -135,8 +139,10 @@ export const getLaporanDetail = async (
                 is_anonymous: reports.is_anonymous,
                 user_id: reports.user_id,
                 created_at: reports.created_at,
+                file_path: report_files.file_path
             })
             .from(reports)
+            .leftJoin(report_files, eq(reports.id, report_files.report_id))
             .innerJoin(categories, eq(categories.id, reports.category_id))
             .innerJoin(statuses, eq(statuses.id, reports.status_id))
             .where(eq(reports.id, reportId));

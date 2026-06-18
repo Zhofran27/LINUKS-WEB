@@ -1,9 +1,25 @@
 import { Request, Response, NextFunction } from 'express';
 import { AuthRequest } from '../../middlewares/auth.middleware';
 import { eq } from 'drizzle-orm';
+import { v2 as cloudinary } from 'cloudinary';
 import { db } from '../../databases/db';
-import { categories, reports, statuses, users } from '../../databases/schema';
+import { categories, reports, statuses, users, report_files } from '../../databases/schema';
 import { formatReportCode, withReportCode } from '../../utils/report-code';
+
+const getCloudinaryPublicId = (filePath: string) => {
+    const urlParts = filePath.split('/');
+    const uploadIndex = urlParts.indexOf('upload');
+    const publicIdParts = uploadIndex >= 0
+        ? urlParts.slice(uploadIndex + 1)
+        : urlParts;
+
+    if (publicIdParts[0]?.startsWith('v')) {
+        publicIdParts.shift();
+    }
+
+    const publicIdWithExt = publicIdParts.join('/');
+    return publicIdWithExt.replace(/\.[^/.]+$/, '');
+};
 
 export const CreateLaporan = async (
     req: AuthRequest,
@@ -53,6 +69,12 @@ export const CreateLaporan = async (
             return res.status(404).json({ error: 'Status not found' });
         }
 
+        const uploadedFiles = Array.isArray(req.files)
+            ? req.files
+            : req.file
+                ? [req.file]
+                : [];
+
         const newReport = await db
         .insert(reports)
         .values({
@@ -67,6 +89,17 @@ export const CreateLaporan = async (
             status_id: status[0].id
         })
         .returning({ id: reports.id });
+
+        if (uploadedFiles.length > 0) {
+            await db
+            .insert(report_files)
+            .values(
+                uploadedFiles.map((file) => ({
+                    report_id: newReport[0].id,
+                    file_path: file.path
+                }))
+            );
+        }
 
         return res.status(201).json({
             message: 'Report created successfully',
@@ -196,6 +229,21 @@ export const deleteLaporan = async (
         if (report.length === 0) {
             return res.status(404).json({ error: 'Report not found' });
         }
+
+        const reportFiles = await db
+        .select()
+        .from(report_files)
+        .where(eq(report_files.report_id, reportId));
+
+        await Promise.all(
+            reportFiles.map((file) =>
+                cloudinary.uploader.destroy(getCloudinaryPublicId(file.file_path))
+            )
+        );
+
+        await db
+        .delete(report_files)
+        .where(eq(report_files.report_id, reportId));
 
         await db
         .delete(reports)
