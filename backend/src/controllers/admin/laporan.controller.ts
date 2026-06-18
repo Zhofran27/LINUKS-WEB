@@ -156,3 +156,51 @@ export const getLaporanDetail = async (
         next(error);
     }
 }
+
+export const getLaporanByNama = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const name = String(req.params.name);
+        const report = await db
+        .select()
+        .from(reports)
+        .where(eq(reports.title, name));
+
+        if (report.length === 0) {
+            return res.status(404).json({ error: 'Report not found' });
+        }
+
+        return res.status(200).json(report.map(withReportCode));
+    } catch (error) {
+        next(error);
+    }
+}
+
+export const getLaporanByCategory = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const categoryId = Number(req.params.category_id);
+        if (Number.isNaN(categoryId)) {
+            return res.status(400).json({ error: 'Invalid category id' });
+        }
+
+        const report = await db
+        .select()
+        .from(reports)
+        .where(eq(reports.category_id, categoryId));
+
+        if (report.length === 0) {
+            return res.status(404).json({ error: 'Report not found' });
+        }
+
+        return res.status(200).json(report.map(withReportCode));
+    } catch (error) {
+        next(error);
+    }
+}
