@@ -6,7 +6,7 @@ export const createLaporanSchema = z.object({
     chronology: z.string().min(1, 'Chronology is required'),
     description: z.string().min(1, 'Description is required'),
     location: z.string().min(1, 'Location is required'),
-    incident_date: z.coerce.date().min(new Date(), 'Incident date must be in the future'),
+    incident_date: z.coerce.date(),
     is_anonymous: z.coerce.number().int().min(0).max(1),
 });
 

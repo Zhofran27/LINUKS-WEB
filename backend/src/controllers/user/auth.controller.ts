@@ -5,6 +5,7 @@ import { eq } from 'drizzle-orm';
 import { google } from 'googleapis';
 import { db } from '../../databases/db';
 import { users } from '../../databases/schema';
+import { Activity } from '../../models/activity.model.js';
 
 const getJwtSecret = () => {
   if (!process.env.JWT_SECRET) {
@@ -144,6 +145,16 @@ export const login = async (
     }
 
     const token = createToken(user[0]);
+
+    await Activity.create({
+      user_id: user[0].id,
+      role: user[0].role,
+      activity: 'Welcome aboard!',
+      metadata: {
+        message: `${user[0].name}, selamat datang di komunitas LINUKS.`,
+        type: 'login',
+      },
+    });
 
     return res.status(200).json({
       message: 'Login berhasil',

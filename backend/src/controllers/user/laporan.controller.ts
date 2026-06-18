@@ -1,8 +1,26 @@
 import { Request, Response, NextFunction } from 'express';
 import { AuthRequest } from '../../middlewares/auth.middleware';
-import { eq } from 'drizzle-orm';
+import { and, eq, ne } from 'drizzle-orm';
+import { v2 as cloudinary } from 'cloudinary';
 import { db } from '../../databases/db';
-import { categories, reports, statuses, users } from '../../databases/schema';
+import { categories, reports, statuses, users, report_files } from '../../databases/schema';
+import { formatReportCode, withReportCode } from '../../utils/report-code';
+import { Activity } from '../../models/activity.model.js';
+
+const getCloudinaryPublicId = (filePath: string) => {
+    const urlParts = filePath.split('/');
+    const uploadIndex = urlParts.indexOf('upload');
+    const publicIdParts = uploadIndex >= 0
+        ? urlParts.slice(uploadIndex + 1)
+        : urlParts;
+
+    if (publicIdParts[0]?.startsWith('v')) {
+        publicIdParts.shift();
+    }
+
+    const publicIdWithExt = publicIdParts.join('/');
+    return publicIdWithExt.replace(/\.[^/.]+$/, '');
+};
 
 export const CreateLaporan = async (
     req: AuthRequest,
@@ -52,6 +70,12 @@ export const CreateLaporan = async (
             return res.status(404).json({ error: 'Status not found' });
         }
 
+        const uploadedFiles = Array.isArray(req.files)
+            ? req.files
+            : req.file
+                ? [req.file]
+                : [];
+
         const newReport = await db
         .insert(reports)
         .values({
@@ -67,9 +91,32 @@ export const CreateLaporan = async (
         })
         .returning({ id: reports.id });
 
+        if (uploadedFiles.length > 0) {
+            await db
+            .insert(report_files)
+            .values(
+                uploadedFiles.map((file) => ({
+                    report_id: newReport[0].id,
+                    file_path: file.path
+                }))
+            );
+        }
+
+        await Activity.create({
+            user_id: userId,
+            role: user[0].role,
+            activity: 'Laporan baru telah dibuat',
+            metadata: {
+                report_id: newReport[0].id,
+                report_code: formatReportCode(newReport[0].id),
+                title,
+            }
+        });
+
         return res.status(201).json({
             message: 'Report created successfully',
             reportId: newReport[0].id,
+            report_code: formatReportCode(newReport[0].id),
         });
 
     } catch (error) {
@@ -99,7 +146,7 @@ export const getLaporanByUser = async (
         .from(reports)
         .where(eq(reports.user_id, userId));
 
-        return res.status(200).json(report);
+        return res.status(200).json(report.map(withReportCode));
     } catch (error) {
         next(error);
     }
@@ -121,7 +168,7 @@ export const getLaporanById = async (
         .from(reports)
         .where(eq(reports.id, reportId));
 
-        return res.status(200).json(report);
+        return res.status(200).json(report.map(withReportCode));
     } catch (error) {
         next(error);
     }
@@ -147,7 +194,7 @@ export const getLaporanByCategory = async (
             return res.status(404).json({ error: 'Report not found' });
         }
 
-        return res.status(200).json(report);
+        return res.status(200).json(report.map(withReportCode));
     } catch (error) {
         next(error);
     }
@@ -169,7 +216,7 @@ export const getLaporanByNama = async (
             return res.status(404).json({ error: 'Report not found' });
         }
 
-        return res.status(200).json(report);
+        return res.status(200).json(report.map(withReportCode));
     } catch (error) {
         next(error);
     }
@@ -195,11 +242,67 @@ export const deleteLaporan = async (
             return res.status(404).json({ error: 'Report not found' });
         }
 
+        const reportFiles = await db
+        .select()
+        .from(report_files)
+        .where(eq(report_files.report_id, reportId));
+
+        await Promise.all(
+            reportFiles.map((file) =>
+                cloudinary.uploader.destroy(getCloudinaryPublicId(file.file_path))
+            )
+        );
+
+        await db
+        .delete(report_files)
+        .where(eq(report_files.report_id, reportId));
+
         await db
         .delete(reports)
         .where(eq(reports.id, reportId));
 
         return res.status(200).json({ message: 'Report deleted successfully' });
+    } catch (error) {
+        next(error);
+    }
+}
+
+export const getLaporanActive = async (
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const userId = req.user?.id;
+        const user = await db
+        .select()
+        .from(users)
+        .where(eq(users.id, userId));
+
+        if (user.length === 0) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        const finishedStatus = await db
+        .select()
+        .from(statuses)
+        .where(eq(statuses.name, 'Selesai'));
+
+        if (finishedStatus.length === 0) {
+            return res.status(404).json({ error: 'Status not found' });
+        }
+
+        const report = await db
+        .select()
+        .from(reports)
+        .where(
+            and(
+                eq(reports.user_id, userId),
+                ne(reports.status_id, finishedStatus[0].id)
+            )
+        );
+
+        return res.status(200).json(report.map(withReportCode));
     } catch (error) {
         next(error);
     }

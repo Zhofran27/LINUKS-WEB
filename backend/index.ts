@@ -1,5 +1,6 @@
 import 'dotenv/config';
-import express, { NextFunction, Request, Response } from 'express'
+import express, { NextFunction, Request, Response } from 'express';
+import { connectMongoDB } from './src/databases/mongodb.js';
 import { drizzle } from 'drizzle-orm/node-postgres'; 
 import { eq } from 'drizzle-orm';
 import appRoutes from './src/routes/index.js';
@@ -24,6 +25,7 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
 });
 
 if (process.env.NODE_ENV !== 'production') {
+  connectMongoDB();
   app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
   });
