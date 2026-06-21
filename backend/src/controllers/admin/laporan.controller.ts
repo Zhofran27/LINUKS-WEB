@@ -2,8 +2,10 @@ import { Request, Response, NextFunction } from 'express'
 import { AuthRequest } from '../../middlewares/auth.middleware';
 import { and, count, eq, gte, lt } from 'drizzle-orm';
 import { db } from '../../databases/db';
-import { reports, categories, statuses, report_files } from '../../databases/schema';
+import { reports, categories, statuses, report_files, users } from '../../databases/schema';
 import { withReportCode } from '../../utils/report-code';
+import { Activity } from '../../models/activity.model.js';
+import { sendStatusUpdateEmail } from '../../utils/mailer';
 
 const getCountValue = (result: { total: number }[]) => result[0]?.total ?? 0;
 
@@ -200,6 +202,88 @@ export const getLaporanByCategory = async (
         }
 
         return res.status(200).json(report.map(withReportCode));
+    } catch (error) {
+        next(error);
+    }
+}
+
+export const updateStatusLaporan = async (
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const userId = req.user?.id;
+
+        const user = await db
+        .select()
+        .from(users)
+        .where(eq(users.id, userId));
+
+        if (user.length === 0) {
+            
+        }
+
+        const reportId = Number(req.params.id);
+        if (Number.isNaN(reportId)) {
+            return res.status(400).json({ error: 'Invalid report id' });
+        }
+
+        const statusName = String(req.body.status);
+        const status = await db
+        .select()
+        .from(statuses)
+        .where(eq(statuses.name, statusName));
+
+        if (status.length === 0) {
+            return res.status(404).json({ error: 'Status not found' });
+        }
+
+        const statusId = status[0].id;
+
+        if (Number.isNaN(statusId)) {
+            return res.status(400).json({ error: 'Invalid status id' });
+        }
+
+        const reportOwner = await db
+        .select({
+            email: users.email,
+            title: reports.title,
+        })
+        .from(reports)
+        .innerJoin(users, eq(reports.user_id, users.id))
+        .where(eq(reports.id, reportId));
+
+        if (reportOwner.length === 0) {
+            return res.status(404).json({ error: 'Report not found' });
+        }
+
+        await db
+        .update(reports)
+        .set({ status_id: statusId })
+        .where(eq(reports.id, reportId));
+
+        try{
+            await sendStatusUpdateEmail ({
+                recipient: reportOwner[0].email,
+                reportTitle: reportOwner[0].title,
+                status: statusName,
+            })
+        } catch (emailError) {
+            console.error("Gagal mengirim email:", emailError);
+        }
+
+        await Activity.create({
+            user_id: userId,
+            role: user[0].role,
+            activity: `Status updated to ${statusName}`,
+            metadata: {
+                report_id: reportId,
+                status: statusName,
+            },
+        });
+
+        return res.status(200).json({ message: 'Status updated successfully' });
     } catch (error) {
         next(error);
     }
