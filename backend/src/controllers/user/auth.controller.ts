@@ -71,11 +71,22 @@ export const register = async (
   next: NextFunction,
 ) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, nim, email, password } = req.body;
 
-    if (!name || !email || !password) {
+    if (!name || !nim || !email || !password) {
       return res.status(400).json({
-        message: 'Name, email, dan password wajib diisi',
+        message: 'Name, NIM, email, dan password wajib diisi',
+      });
+    }
+
+    const existingNim = await db
+      .select()
+      .from(users)
+      .where(eq(users.nim, nim));
+
+    if (existingNim.length > 0) {
+      return res.status(400).json({
+        message: 'NIM sudah terdaftar',
       });
     }
 
@@ -96,6 +107,7 @@ export const register = async (
       .insert(users)
       .values({
         name,
+        nim,
         email,
         password: hashedPassword,
         role: 'user',

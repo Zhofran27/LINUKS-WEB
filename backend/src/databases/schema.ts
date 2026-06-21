@@ -10,6 +10,7 @@ import {
 export const users = pgTable ('users', {
   id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
   name: varchar('name', { length: 255 }).notNull(),
+  nim: varchar('nim', { length: 50 }),
   email: varchar('email', { length: 255 }).notNull(),
   password: varchar('password', { length: 255 }).notNull(),
   role: varchar('role', { length: 255 }).notNull(),
