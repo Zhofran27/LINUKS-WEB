@@ -6,7 +6,7 @@ import  cors  from 'cors';
 import { eq } from 'drizzle-orm';
 import appRoutes from './src/routes/index.js';
 const app = express();
-const PORT = 3000
+const PORT = 4000
 
 app.use(
   cors({
