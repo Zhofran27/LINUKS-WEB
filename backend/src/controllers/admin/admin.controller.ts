@@ -27,3 +27,28 @@ export const profileAdmin = async (
         next(error);
     }
 }
+
+export const getRecentActivity = async (
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const userId = req.user?.id;
+        const user = await db.select().from(users).where(eq(users.id, userId));
+
+        if (user.length === 0) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        const activities = await Activity
+            .find({ user_id: userId })
+            .sort({ created_at: -1 })
+            .limit(5)
+            .lean();
+
+        return res.status(200).json(activities);
+    } catch (error) {
+        next(error);
+    }
+}
