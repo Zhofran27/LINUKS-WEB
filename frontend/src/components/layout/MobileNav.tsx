@@ -23,7 +23,7 @@ export default function MobileNav() {
             href={item.href}
             className={`flex flex-col items-center gap-1 ${isActive ? "text-primary" : "text-on-surface-variant opacity-50"}`}
           >
-            <span className="material-icons text-2xl">{item.icon}</span>
+            <span className="material-symbols-outlined text-2xl">{item.icon}</span>
             <span className="text-[10px] font-bold">{item.label}</span>
           </Link>
         );
