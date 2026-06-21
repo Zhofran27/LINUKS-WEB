@@ -3,6 +3,7 @@ import { Sora, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import Sidebar from "@/components/layout/Sidebar";
 import MobileNav from "@/components/layout/MobileNav";
+import AuroraBackground from "@/components/aurora/AuroraBackground";
 
 const sora = Sora({
   subsets: ["latin"],
@@ -28,25 +29,20 @@ export default function RootLayout({
 }) {
   return (
     <html lang="id">
+      <head>
+        <link
+          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+          rel="stylesheet"
+        />
+      </head>
       <body className={`${sora.variable} ${jakarta.variable}`}>
+        <AuroraBackground />
         <Sidebar />
-        <main className="lg:ml-72 min-h-screen p-8 pb-24 lg:pb-8">
+        <main className="lg:ml-72 min-h-screen px-grid-margin py-10 relative z-10">
           {children}
         </main>
         <MobileNav />
       </body>
-
-      <html lang="id">
-  <head>
-    <link
-      href="https://fonts.googleapis.com/icon?family=Material+Icons"
-      rel="stylesheet"
-    />
-  </head>
-  <body className={`${sora.variable} ${jakarta.variable}`}>
-    ...
-  </body>
-</html>
     </html>
   );
 }
