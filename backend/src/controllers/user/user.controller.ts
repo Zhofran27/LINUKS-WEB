@@ -53,6 +53,9 @@ export const updateUser = async (
         if (name) {
             user[0].name = name;
         }
+        if (nim) {
+            user[0].nim = nim;
+        }
         if (email) {
             user[0].email = email;
         }
