@@ -34,7 +34,7 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body className={`${sora.variable} ${jakarta.variable}`}>
+      <body className={`${sora.variable} ${jakarta.variable} font-sans antialiased`}>
         <AuroraBackground />
         <ConditionalLayout>
           {children}
