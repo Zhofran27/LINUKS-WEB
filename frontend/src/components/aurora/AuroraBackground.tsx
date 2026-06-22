@@ -1,4 +1,3 @@
-// src/components/aurora/AuroraBackground.tsx
 "use client";
 
 import { useEffect, useRef } from "react";
@@ -13,7 +12,6 @@ export default function AuroraBackground() {
     const gl = canvas.getContext("webgl");
     if (!gl) return;
 
-    // Resize canvas
     function resize() {
       if (!canvas) return;
       canvas.width = window.innerWidth;
@@ -23,7 +21,6 @@ export default function AuroraBackground() {
     resize();
     window.addEventListener("resize", resize);
 
-    // Vertex shader
     const vsSource = `
       attribute vec2 a_position;
       varying vec2 v_texCoord;
@@ -33,7 +30,6 @@ export default function AuroraBackground() {
       }
     `;
 
-    // Fragment shader
     const fsSource = `
       precision highp float;
       varying vec2 v_texCoord;
@@ -85,7 +81,6 @@ export default function AuroraBackground() {
       }
     `;
 
-    // Compile shaders
     function compileShader(source: string, type: number) {
       const shader = gl!.createShader(type)!;
       gl!.shaderSource(shader, source);
@@ -99,7 +94,6 @@ export default function AuroraBackground() {
     gl.linkProgram(program);
     gl.useProgram(program);
 
-    // Buffer
     const buffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
@@ -111,7 +105,6 @@ export default function AuroraBackground() {
     const uTime = gl.getUniformLocation(program, "u_time");
     const uRes = gl.getUniformLocation(program, "u_resolution");
 
-    // Animation
     let animationId: number;
     function render(time: number) {
       gl!.uniform1f(uTime, time * 0.001);
@@ -130,7 +123,7 @@ export default function AuroraBackground() {
   return (
     <canvas
       ref={canvasRef}
-      className="fixed inset-0 w-full h-full -z-10"
+      className="fixed inset-0 w-full h-full -z-10 opacity-60"
       style={{ display: "block" }}
     />
   );

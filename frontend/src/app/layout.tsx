@@ -35,7 +35,7 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body className={`${sora.variable} ${jakarta.variable}`}>
+      <body className={`${sora.variable} ${jakarta.variable} font-sans antialiased`}>
         <AuroraBackground />
         <Sidebar />
         <main className="lg:ml-72 min-h-screen px-grid-margin py-10 relative z-10">
