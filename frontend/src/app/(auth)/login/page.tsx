@@ -43,9 +43,6 @@ export default function LoginPage() {
           {/* Header */}
           <div className="mb-6">
             <h2 className="text-2xl font-bold text-gray-800">Selamat Datang di Ruang Amanmu 🦋</h2>
-            <p className="text-sm text-gray-400 mt-1">
-              Tempat berbagi tanpa penghakim.
-            </p>
           </div>
 
           {/* Form */}
