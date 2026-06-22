@@ -44,7 +44,7 @@ export const updateUser = async (
             return res.status(404).json({ error: 'User not found' });
         }
 
-        const { name, email, password } = req.body;
+        const { name, nim, email, password } = req.body;
 
         if (!name && !email && !password) {
             return res.status(400).json({ error: 'No fields to update' });
