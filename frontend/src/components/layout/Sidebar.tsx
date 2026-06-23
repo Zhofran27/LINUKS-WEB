@@ -1,7 +1,8 @@
-"use client";
+'use client';
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useAuth } from '@/hooks/useAuth';
 
 const menuItems = [
   { icon: "dashboard", label: "Dashboard", href: "/" },
@@ -13,6 +14,10 @@ const menuItems = [
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const { user, loading } = useAuth();
+
+  const displayName = loading ? '...' : (user?.nama || 'Guest');
+  const roleLabel = user?.role === 'admin' ? 'Admin' : 'Safe Member';
 
   return (
     <aside className="hidden lg:flex h-screen w-72 fixed left-0 top-0 flex-col bg-white/40 backdrop-blur-2xl border-r border-white/50 z-50 p-6 gap-4">
@@ -31,8 +36,8 @@ export default function Sidebar() {
           />
         </div>
         <div className="flex flex-col overflow-hidden">
-          <span className="font-label-md text-label-md text-on-surface truncate">Zhofran</span>
-          <span className="text-[10px] text-on-surface-variant uppercase tracking-widest">Safe Member</span>
+          <span className="font-label-md text-label-md text-on-surface truncate">{displayName}</span>
+          <span className="text-[10px] text-on-surface-variant uppercase tracking-widest">{roleLabel}</span>
         </div>
       </div>
 
