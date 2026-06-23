@@ -1,15 +1,15 @@
 'use client';
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 
 const menuItems = [
-  { icon: "dashboard", label: "Dashboard", href: "/" },
-  { icon: "description", label: "Reports", href: "/reports" },
-  { icon: "auto_stories", label: "Library", href: "/library" },
-  { icon: "person", label: "Profile", href: "/profile" },
-  { icon: "settings", label: "Settings", href: "/settings" },
+  { icon: 'dashboard', label: 'Dashboard', href: '/' },
+  { icon: 'description', label: 'Reports', href: '/reports' },
+  { icon: 'auto_stories', label: 'Library', href: '/library' },
+  { icon: 'person', label: 'Profile', href: '/profile' },
+  { icon: 'settings', label: 'Settings', href: '/settings' },
 ];
 
 export default function Sidebar() {
@@ -43,7 +43,7 @@ export default function Sidebar() {
 
       <div className="flex flex-col gap-2 flex-grow">
         {menuItems.map((item) => {
-          const isActive = pathname === item.href || (item.href === "/" && (pathname === "/" || pathname === "/dashboard"));
+          const isActive = pathname === item.href || (item.href === '/' && (pathname === '/' || pathname === '/dashboard'));
           return (
             <Link
               key={item.href}
@@ -51,8 +51,8 @@ export default function Sidebar() {
               className={`
                 flex items-center gap-3 p-4 rounded-[2rem] transition-all duration-200
                 ${isActive 
-                  ? "bg-primary-container/30 text-on-primary-container font-bold" 
-                  : "text-on-surface-variant hover:bg-white/20 hover:translate-x-1"
+                  ? 'bg-primary-container/30 text-on-primary-container font-bold' 
+                  : 'text-on-surface-variant hover:bg-white/20 hover:translate-x-1'
                 }
               `}
             >

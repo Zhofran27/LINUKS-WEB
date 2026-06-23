@@ -1,13 +1,13 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
 const menuItems = [
-  { icon: "dashboard", label: "Home", href: "/dashboard" },
-  { icon: "description", label: "Reports", href: "/reports" },
-  { icon: "auto_stories", label: "Library", href: "/library" },
-  { icon: "person", label: "Profile", href: "/profile" },
+  { icon: 'dashboard', label: 'Home', href: '/dashboard' },
+  { icon: 'description', label: 'Reports', href: '/reports' },
+  { icon: 'auto_stories', label: 'Library', href: '/library' },
+  { icon: 'person', label: 'Profile', href: '/profile' },
 ];
 
 export default function MobileNav() {
@@ -21,7 +21,7 @@ export default function MobileNav() {
           <Link
             key={item.href}
             href={item.href}
-            className={`flex flex-col items-center gap-1 ${isActive ? "text-primary" : "text-on-surface-variant opacity-50"}`}
+            className={`flex flex-col items-center gap-1 ${isActive ? 'text-primary' : 'text-on-surface-variant opacity-50'}`}
           >
             <span className="material-symbols-outlined text-2xl">{item.icon}</span>
             <span className="text-[10px] font-bold">{item.label}</span>

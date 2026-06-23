@@ -1,11 +1,117 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
+import { fetchActiveLaporan, fetchUserActivity } from '@/lib/api';
+
+interface Laporan {
+  id: number;
+  report_code: string;
+  title: string;
+  status_id: number;
+  description: string;
+  created_at: string;
+}
+
+interface Activity {
+  _id: string;
+  activity: string;
+  metadata: {
+    report_code?: string;
+    title?: string;
+    message?: string;
+    type?: string;
+  };
+  created_at: string;
+}
+
+const STATUS_MAP: Record<number, { label: string; color: string; progress: number; keterangan: string }> = {
+  1: { label: 'MENUNGGU VERIFIKASI', color: 'bg-primary-fixed text-on-primary-fixed-variant', progress: 15, keterangan: 'Laporanmu sedang dalam antrian verifikasi' },
+  2: { label: 'PERLU Klarifikasi', color: 'bg-tertiary-container text-on-tertiary-container', progress: 30, keterangan: 'Tim kami memerlukan informasi tambahan' },
+  3: { label: 'DIPROSES', color: 'bg-secondary-container text-secondary', progress: 60, keterangan: 'Sedang ditinjau oleh tim profesional' },
+  4: { label: 'DITERUSKAN KE SATGAS', color: 'bg-tertiary-container text-on-tertiary-container', progress: 85, keterangan: 'Dalam penanganan Satgas' },
+  5: { label: 'SELESAI', color: 'bg-primary-fixed text-on-primary-fixed-variant', progress: 100, keterangan: 'Laporan telah diselesaikan' },
+  6: { label: 'DITOLAK', color: 'bg-error-container text-on-error-container', progress: 0, keterangan: 'Laporan tidak dapat diproses' },
+};
+
+const getStatusInfo = (statusId: number) => STATUS_MAP[statusId] || STATUS_MAP[1];
+
+function timeAgo(dateStr: string): string {
+  const date = new Date(dateStr);
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  const diffMins = Math.floor(diffMs / 60000);
+  const diffHours = Math.floor(diffMs / 3600000);
+  const diffDays = Math.floor(diffMs / 86400000);
+
+  if (diffMins < 1) return 'Baru saja';
+  if (diffMins < 60) return `${diffMins} menit yang lalu`;
+  if (diffHours < 24) return `${diffHours} jam yang lalu`;
+  if (diffDays === 1) return 'Kemarin';
+  if (diffDays < 7) return `${diffDays} hari yang lalu`;
+  return date.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+}
+
+function getActivityIcon(activity: string): string {
+  const lower = activity.toLowerCase();
+  if (lower.includes('laporan') && lower.includes('buat')) return 'assignment_add';
+  if (lower.includes('status')) return 'assignment_turned_in';
+  if (lower.includes('baca') || lower.includes('artikel')) return 'auto_stories';
+  if (lower.includes('login') || lower.includes('welcome')) return 'login';
+  if (lower.includes('register')) return 'person_add';
+  return 'notifications';
+}
+
+function getActivityColor(activity: string): { bg: string; text: string } {
+  const lower = activity.toLowerCase();
+  if (lower.includes('laporan') && lower.includes('buat')) return { bg: 'bg-primary-container', text: 'text-primary' };
+  if (lower.includes('status')) return { bg: 'bg-secondary-container', text: 'text-secondary' };
+  if (lower.includes('baca') || lower.includes('artikel')) return { bg: 'bg-tertiary-container', text: 'text-tertiary' };
+  if (lower.includes('login') || lower.includes('welcome')) return { bg: 'bg-primary-container', text: 'text-primary' };
+  return { bg: 'bg-primary-container', text: 'text-primary' };
+}
 
 export default function Dashboard() {
-  const { user, loading } = useAuth();
+  const { user, loading: authLoading } = useAuth();
 
-  const displayName = loading ? '...' : (user?.nama || 'Sahabat');
+  const [laporan, setLaporan] = useState<Laporan | null>(null);
+  const [laporanLoading, setLaporanLoading] = useState(true);
+  const [laporanError, setLaporanError] = useState<string | null>(null);
+
+  const [activities, setActivities] = useState<Activity[]>([]);
+  const [activityLoading, setActivityLoading] = useState(true);
+
+  const displayName = authLoading ? '...' : (user?.nama || 'Sahabat');
+
+  useEffect(() => {
+    if (authLoading || !user) return;
+
+    fetchActiveLaporan()
+      .then((data: Laporan[]) => {
+        setLaporan(data.length > 0 ? data[0] : null);
+        setLaporanLoading(false);
+      })
+      .catch((err) => {
+        setLaporanError(err.message);
+        setLaporanLoading(false);
+      });
+  }, [authLoading, user]);
+
+  useEffect(() => {
+    if (authLoading || !user) return;
+
+    fetchUserActivity()
+      .then((data: Activity[]) => {
+        setActivities(data.slice(0, 3));
+        setActivityLoading(false);
+      })
+      .catch(() => {
+        setActivities([]);
+        setActivityLoading(false);
+      });
+  }, [authLoading, user]);
+
+  const statusInfo = laporan ? getStatusInfo(laporan.status_id) : null;
 
   return (
     <div className="space-y-16 max-w-7xl mx-auto pb-24 lg:pb-0">
@@ -70,27 +176,59 @@ export default function Dashboard() {
               <h3 className="font-headline-sm text-headline-sm text-on-surface">Status Laporan</h3>
               <span className="material-symbols-outlined text-primary">analytics</span>
             </div>
-            <div className="flex-grow flex flex-col gap-4">
-              <div className="p-4 rounded-[2rem] bg-surface-container-low border border-white/40">
-                <div className="flex justify-between mb-2">
-                  <span className="font-label-md text-label-md">Laporan #429</span>
-                  <span className="px-2 py-0.5 rounded-full bg-secondary-container text-secondary text-xs font-bold">
-                    DIPROSES
+
+            {laporanLoading && (
+              <div className="flex-grow flex items-center justify-center py-8">
+                <div className="animate-pulse space-y-4 w-full">
+                  <div className="h-4 bg-white/20 rounded-full w-3/4"></div>
+                  <div className="h-2 bg-white/20 rounded-full w-full"></div>
+                  <div className="h-3 bg-white/20 rounded-full w-1/2"></div>
+                </div>
+              </div>
+            )}
+
+            {!laporanLoading && laporanError && (
+              <div className="flex-grow flex flex-col items-center justify-center py-6 text-center">
+                <span className="material-symbols-outlined text-2xl text-error mb-2">error</span>
+                <p className="font-caption text-on-surface-variant">{laporanError}</p>
+              </div>
+            )}
+
+            {!laporanLoading && !laporanError && laporan && statusInfo && (
+              <div className="flex-grow flex flex-col gap-4">
+                <div className="p-4 rounded-[2rem] bg-surface-container-low border border-white/40">
+                  <div className="flex justify-between mb-2">
+                    <span className="font-label-md text-label-md">{laporan.report_code}</span>
+                    <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${statusInfo.color}`}>
+                      {statusInfo.label}
+                    </span>
+                  </div>
+                  <div className="w-full h-2 bg-white rounded-full overflow-hidden">
+                    <div 
+                      className="h-full bg-gradient-to-r from-primary to-secondary transition-all duration-700"
+                      style={{ width: `${statusInfo.progress}%` }}
+                    ></div>
+                  </div>
+                  <p className="font-caption text-on-surface-variant mt-2">
+                    {statusInfo.keterangan}
+                  </p>
+                  <p className="font-caption text-outline mt-1">
+                    {laporan.title}
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {!laporanLoading && !laporanError && !laporan && (
+              <div className="flex-grow flex flex-col gap-4">
+                <div className="p-4 rounded-[2rem] bg-white/20 border border-white/10 flex items-center justify-center border-dashed">
+                  <span className="font-caption text-on-surface-variant">
+                    Belum ada laporan aktif
                   </span>
                 </div>
-                <div className="w-full h-2 bg-white rounded-full overflow-hidden">
-                  <div className="h-full bg-gradient-to-r from-primary to-secondary w-2/3"></div>
-                </div>
-                <p className="font-caption text-on-surface-variant mt-2">
-                  Sedang ditinjau oleh Konselor
-                </p>
               </div>
-              <div className="p-4 rounded-[2rem] bg-white/20 border border-white/10 flex items-center justify-center border-dashed">
-                <span className="font-caption text-on-surface-variant">
-                  Belum ada laporan aktif lainnya
-                </span>
-              </div>
-            </div>
+            )}
+
             <button className="mt-4 text-primary font-bold font-label-md hover:underline flex items-center gap-1">
               Lihat Riwayat <span className="material-symbols-outlined text-base">open_in_new</span>
             </button>
@@ -137,40 +275,72 @@ export default function Dashboard() {
         <section className="md:col-span-6 lg:col-span-5">
           <div className="glass-card p-6">
             <h3 className="font-headline-sm text-headline-sm text-on-surface mb-6">Aktivitas Terbaru</h3>
-            <div className="space-y-6">
-              <div className="flex gap-4 relative">
-                <div className="absolute left-5 top-10 bottom-[-24px] w-0.5 bg-outline-variant"></div>
-                <div className="w-10 h-10 rounded-full bg-secondary-container flex items-center justify-center text-secondary flex-shrink-0 relative z-10">
-                  <span className="material-symbols-outlined text-xl">assignment_turned_in</span>
+            
+            {activityLoading ? (
+              <div className="space-y-4 animate-pulse">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="flex gap-4">
+                    <div className="w-10 h-10 rounded-full bg-white/20"></div>
+                    <div className="flex-1 space-y-2">
+                      <div className="h-3 bg-white/20 rounded-full w-1/2"></div>
+                      <div className="h-2 bg-white/20 rounded-full w-3/4"></div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : activities.length > 0 ? (
+              <div className="space-y-6">
+                {activities.map((act, index) => {
+                  const colors = getActivityColor(act.activity);
+                  const isLast = index === activities.length - 1;
+                  return (
+                    <div className="flex gap-4 relative" key={act._id}>
+                      {!isLast && (
+                        <div className="absolute left-5 top-10 bottom-[-24px] w-0.5 bg-outline-variant"></div>
+                      )}
+                      <div className={`w-10 h-10 rounded-full ${colors.bg} flex items-center justify-center ${colors.text} flex-shrink-0 relative z-10`}>
+                        <span className="material-symbols-outlined text-xl">{getActivityIcon(act.activity)}</span>
+                      </div>
+                      <div className="pb-2">
+                        <p className="font-body-md font-bold">
+                          {act.metadata.title || act.activity}
+                        </p>
+                        <p className="font-caption text-on-surface-variant">
+                          {act.metadata.message || act.activity}
+                        </p>
+                        <p className="text-xs text-outline mt-1 uppercase font-bold">
+                          {timeAgo(act.created_at)}
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="space-y-6">
+                <div className="flex gap-4 relative">
+                  <div className="absolute left-5 top-10 bottom-[-24px] w-0.5 bg-outline-variant"></div>
+                  <div className="w-10 h-10 rounded-full bg-secondary-container flex items-center justify-center text-secondary flex-shrink-0 relative z-10">
+                    <span className="material-symbols-outlined text-xl">assignment_turned_in</span>
+                  </div>
+                  <div className="pb-2">
+                    <p className="font-body-md font-bold">Laporan Diperbarui</p>
+                    <p className="font-caption text-on-surface-variant">Tim LINUKS sedang meninjau dokumenmu.</p>
+                    <p className="text-xs text-outline mt-1 uppercase font-bold">2 Jam yang lalu</p>
+                  </div>
                 </div>
-                <div className="pb-2">
-                  <p className="font-body-md font-bold">Laporan Diperbarui</p>
-                  <p className="font-caption text-on-surface-variant">Tim LINUKS sedang meninjau dokumenmu.</p>
-                  <p className="text-xs text-outline mt-1 uppercase font-bold">2 Jam yang lalu</p>
+                <div className="flex gap-4 relative">
+                  <div className="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center text-primary flex-shrink-0 relative z-10">
+                    <span className="material-symbols-outlined text-xl">favorite</span>
+                  </div>
+                  <div className="pb-2">
+                    <p className="font-body-md font-bold">Welcome aboard!</p>
+                    <p className="font-caption text-on-surface-variant">Selamat datang di komunitas LINUKS.</p>
+                    <p className="text-xs text-outline mt-1 uppercase font-bold">3 hari yang lalu</p>
+                  </div>
                 </div>
               </div>
-              <div className="flex gap-4 relative">
-                <div className="absolute left-5 top-10 bottom-[-24px] w-0.5 bg-outline-variant"></div>
-                <div className="w-10 h-10 rounded-full bg-tertiary-container flex items-center justify-center text-tertiary flex-shrink-0 relative z-10">
-                  <span className="material-symbols-outlined text-xl">auto_stories</span>
-                </div>
-                <div className="pb-2">
-                  <p className="font-body-md font-bold">Membaca Artikel</p>
-                  <p className="font-caption text-on-surface-variant">Kamu baru saja menyelesaikan &quot;Meditasi 101&quot;.</p>
-                  <p className="text-xs text-outline mt-1 uppercase font-bold">Kemarin</p>
-                </div>
-              </div>
-              <div className="flex gap-4 relative">
-                <div className="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center text-primary flex-shrink-0 relative z-10">
-                  <span className="material-symbols-outlined text-xl">favorite</span>
-                </div>
-                <div className="pb-2">
-                  <p className="font-body-md font-bold">Welcome aboard!</p>
-                  <p className="font-caption text-on-surface-variant">Selamat datang di komunitas LINUKS.</p>
-                  <p className="text-xs text-outline mt-1 uppercase font-bold">3 hari yang lalu</p>
-                </div>
-              </div>
-            </div>
+            )}
           </div>
         </section>
 
