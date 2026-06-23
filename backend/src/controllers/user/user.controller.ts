@@ -114,4 +114,3 @@ export const getRecentActivity = async (
         next(error);
     }
 }
-
