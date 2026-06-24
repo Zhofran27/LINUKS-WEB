@@ -79,7 +79,7 @@ export const updateUser = async (
     email: users.email,
     nim: users.nim,
   });
-    return res.status(200).json(updatedUser);
+    return res.status(200).json(updatedUser[0]);
     } catch (error) {
         next(error);
     }
