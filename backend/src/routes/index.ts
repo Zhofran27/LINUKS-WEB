@@ -5,6 +5,7 @@ import userRoute from './user/user.route.js'
 import laporanRoute from './user/laporan.route.js'
 import adminLaporanRoute from './admin/laporan.route.js'
 import adminRoute from './admin/admin.route.js'
+import libraryRoute from './user/library.routes.js'
 
 const router = Router();
 
@@ -14,5 +15,6 @@ router.use('/user', userRoute);
 router.use('/admin', adminRoute);
 router.use('/laporan', laporanRoute);
 router.use('/admin/laporan', adminLaporanRoute);
+router.use('/library', libraryRoute);
 
 export default router;

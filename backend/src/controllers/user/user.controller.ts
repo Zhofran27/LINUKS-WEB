@@ -44,7 +44,7 @@ export const updateUser = async (
             return res.status(404).json({ error: 'User not found' });
         }
 
-        const { name, email, password } = req.body;
+        const { name, nim, email, password } = req.body;
 
         if (!name && !email && !password) {
             return res.status(400).json({ error: 'No fields to update' });
@@ -52,6 +52,9 @@ export const updateUser = async (
 
         if (name) {
             user[0].name = name;
+        }
+        if (nim) {
+            user[0].nim = nim;
         }
         if (email) {
             user[0].email = email;
@@ -111,4 +114,3 @@ export const getRecentActivity = async (
         next(error);
     }
 }
-

@@ -27,7 +27,7 @@ interface Activity {
 
 const STATUS_MAP: Record<number, { label: string; color: string; progress: number; keterangan: string }> = {
   1: { label: 'MENUNGGU VERIFIKASI', color: 'bg-primary-fixed text-on-primary-fixed-variant', progress: 15, keterangan: 'Laporanmu sedang dalam antrian verifikasi' },
-  2: { label: 'PERLU Klarifikasi', color: 'bg-tertiary-container text-on-tertiary-container', progress: 30, keterangan: 'Tim kami memerlukan informasi tambahan' },
+  2: { label: 'PERLU KLARIFIKASI', color: 'bg-tertiary-container text-on-tertiary-container', progress: 30, keterangan: 'Tim kami memerlukan informasi tambahan' },
   3: { label: 'DIPROSES', color: 'bg-secondary-container text-secondary', progress: 60, keterangan: 'Sedang ditinjau oleh tim profesional' },
   4: { label: 'DITERUSKAN KE SATGAS', color: 'bg-tertiary-container text-on-tertiary-container', progress: 85, keterangan: 'Dalam penanganan Satgas' },
   5: { label: 'SELESAI', color: 'bg-primary-fixed text-on-primary-fixed-variant', progress: 100, keterangan: 'Laporan telah diselesaikan' },
@@ -81,7 +81,7 @@ export default function Dashboard() {
   const [activities, setActivities] = useState<Activity[]>([]);
   const [activityLoading, setActivityLoading] = useState(true);
 
-  const displayName = authLoading ? '...' : (user?.nama || 'Sahabat');
+  const displayName = authLoading ? '...' : (user?.name || 'Sahabat');
 
   useEffect(() => {
     if (authLoading || !user) return;
@@ -101,8 +101,8 @@ export default function Dashboard() {
     if (authLoading || !user) return;
 
     fetchUserActivity()
-      .then((data: Activity[]) => {
-        setActivities(data.slice(0, 3));
+      .then((data) => {
+        setActivities((data as Activity[]).slice(0, 3));
         setActivityLoading(false);
       })
       .catch(() => {
@@ -204,7 +204,7 @@ export default function Dashboard() {
                     </span>
                   </div>
                   <div className="w-full h-2 bg-white rounded-full overflow-hidden">
-                    <div 
+                    <div
                       className="h-full bg-gradient-to-r from-primary to-secondary transition-all duration-700"
                       style={{ width: `${statusInfo.progress}%` }}
                     ></div>
@@ -245,7 +245,7 @@ export default function Dashboard() {
             <div className="space-y-4">
               <div className="flex gap-3 group cursor-pointer">
                 <div className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0">
-                  <img className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCD6RHbzLtXBgXiSG_-T0UsamMGprHfH5Tz-IkttNU4IJFY69CEge7fcMn-2Imtr-6NTnlxnwasaz4AUqO0-f_BNJ2NsCf18AoaOKSl9Ry2bavgQN1J8feEFcXMw-HcrHTnM4b6dXvTokYakjrFZmmziPCO6lYvdLoQUL53pIbIuZImLy_KdVLlbnvCNHHiEddG7i9rCuqO51xiIY-Nlb-er9SGBBkpWLlmDv5clsyNhVbZnMFxqpDM6ipoLabRO5MiXqXil6CzzjNl" />
+                  <img className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCD6RHbzLtXBgXiSG_-T0UsamMGprHfH5Tz-IkttNU4IJFY69CEge7fcMn-2Imtr-6NTnlxnwasaz4AUqO0-f_BNJ2NsCf18AoaOKSl9Ry2bavgQN1J8feEFcXMw-HcrHTnM4b6dXvTokYakjrFZmmziPCO6lYvdLoQUL53pIbIuZImLy_KdVLlbnvCNHHiEddG7i9rCuqO51xiIY-Nlb-er9SGBBkpWLlmDv5clsyNhVbZnMFxqpDM6ipoLabRO5MiXqXil6CzzjNl" alt="Self-Care" />
                 </div>
                 <div className="flex flex-col">
                   <span className="font-label-md text-label-md group-hover:text-primary transition-colors">
@@ -256,7 +256,7 @@ export default function Dashboard() {
               </div>
               <div className="flex gap-3 group cursor-pointer">
                 <div className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0">
-                  <img className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBApaQZbW-OL7bY4f8AWYQUqjbL0dNlHyz5TQ0xabA5_4JdqRLkemCQRlkTMsY5-t0BCz4RJje7ppJctVPw9auoEsMg7voA-dwSz5Tukt2ouOnNu7aJcZHu_iqVavyvHy9YOKT9EQna2dqdNFIB7w4Da-bZRl5P3bS5V7lScxjlnvn_8cGQR59t7tzMWOS-P9OgioI_YPMVhKCtU2hjFc6BNuUhsvmX0pKCn3x5nefCNEMV0PYJyPIRM3W_g9v41xfhIyZeKyH3nTQZ" />
+                  <img className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBApaQZbW-OL7bY4f8AWYQUqjbL0dNlHyz5TQ0xabA5_4JdqRLkemCQRlkTMsY5-t0BCz4RJje7ppJctVPw9auoEsMg7voA-dwSz5Tukt2ouOnNu7aJcZHu_iqVavyvHy9YOKT9EQna2dqdNFIB7w4Da-bZRl5P3bS5V7lScxjlnvn_8cGQR59t7tzMWOS-P9OgioI_YPMVhKCtU2hjFc6BNuUhsvmX0pKCn3x5nefCNEMV0PYJyPIRM3W_g9v41xfhIyZeKyH3nTQZ" alt="Batas Sehat" />
                 </div>
                 <div className="flex flex-col">
                   <span className="font-label-md text-label-md group-hover:text-primary transition-colors">
@@ -275,7 +275,7 @@ export default function Dashboard() {
         <section className="md:col-span-6 lg:col-span-5">
           <div className="glass-card p-6">
             <h3 className="font-headline-sm text-headline-sm text-on-surface mb-6">Aktivitas Terbaru</h3>
-            
+
             {activityLoading ? (
               <div className="space-y-4 animate-pulse">
                 {[1, 2, 3].map((i) => (
