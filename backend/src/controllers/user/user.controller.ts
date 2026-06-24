@@ -16,6 +16,7 @@ export const ProfileUser = async (
         const user = await db
             .select({
                 name: users.name,
+                nim: users.nim,
                 email: users.email,
             })
             .from(users)
