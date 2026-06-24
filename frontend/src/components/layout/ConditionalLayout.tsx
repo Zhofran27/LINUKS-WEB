@@ -3,6 +3,7 @@
 import { usePathname } from 'next/navigation';
 import Sidebar from '@/components/layout/Sidebar';
 import MobileNav from '@/components/layout/MobileNav';
+import AuroraBackground from '@/components/aurora/AuroraBackground';
 
 const authRoutes = ['/login', '/register'];
 const landingRoutes = ['/', '/library']; // ← tambahin /library
@@ -27,11 +28,14 @@ export default function ConditionalLayout({
   // Dashboard/app pages: dengan sidebar
   return (
     <>
-      <Sidebar />
-      <main className="lg:ml-72 min-h-screen px-grid-margin py-10 relative z-10">
-        {children}
-      </main>
-      <MobileNav />
+      <AuroraBackground />
+      <div className="relative z-0 min-h-screen">
+        <Sidebar />
+        <main className="lg:ml-72 min-h-screen px-grid-margin py-10 relative z-10">
+          {children}
+        </main>
+        <MobileNav />
+      </div>
     </>
   );
 }
