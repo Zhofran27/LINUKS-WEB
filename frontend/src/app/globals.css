@@ -31,6 +31,11 @@ body {
   background-color: #fff8f9;
   color: #350929;
   font-family: var(--font-body);
+  min-height: 100vh;
+}
+
+.landing-page {
+  background-color: transparent;
 }
 
 .glass-card {
@@ -77,10 +82,10 @@ body {
 }
 
 .butterfly-float {
-  animation: float 6s ease-in-out infinite;
+  animation: butterflyFloat 6s ease-in-out infinite;
 }
 
-@keyframes float {
+@keyframes butterflyFloat {
   0%, 100% { transform: translateY(0) rotate(0deg); }
   50% { transform: translateY(-20px) rotate(5deg); }
 }
@@ -173,41 +178,6 @@ body {
   }
 }
 
-.glass-card {
-  background: rgba(255, 255, 255, 0.4);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  border-radius: 2.5rem;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
-}
-
-.glass-card:hover {
-  transform: translateY(-4px);
-  background: rgba(255, 255, 255, 0.5);
-  box-shadow: 0 20px 40px rgba(53, 9, 41, 0.08);
-}
-
-.glass-card::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  padding: 1px;
-  background: linear-gradient(135deg, rgba(255,255,255,0.5), rgba(255,255,255,0.1));
-  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-.glass-card:hover::before {
-  opacity: 1;
-}
-
 .aurora-container {
   position: fixed;
   top: 0;
@@ -222,10 +192,10 @@ body {
   filter: blur(60px);
   opacity: 0.4;
   z-index: -5;
-  animation: float 20s infinite alternate ease-in-out;
+  animation: blobFloat 20s infinite alternate ease-in-out;
 }
 
-@keyframes float {
+@keyframes blobFloat {
   0% { transform: translate(0, 0) scale(1); }
   100% { transform: translate(30px, -50px) scale(1.1); }
 }
