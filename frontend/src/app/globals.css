@@ -34,8 +34,15 @@ body {
   min-height: 100vh;
 }
 
+/* Landing page: transparent background so aurora shows */
 .landing-page {
   background-color: transparent;
+}
+
+/* Dashboard/app pages: solid background */
+.app-shell {
+  background-color: #fff8f9;
+  min-height: 100vh;
 }
 
 .glass-card {
