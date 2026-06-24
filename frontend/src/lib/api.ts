@@ -38,11 +38,11 @@ async function post<T>(endpoint: string, body: unknown): Promise<T> {
     body: JSON.stringify(body),
   });
 
-  const data = await res.json();
+  const data = await res.json().catch(() => ({}));
 
   if (!res.ok) {
     // Backend kirim { message: '...' } kalau error
-    throw new Error(data.message || 'Terjadi kesalahan');
+    throw new Error(data.message || data.error || 'Terjadi kesalahan');
   }
 
   return data;
@@ -83,6 +83,21 @@ export type CreateLaporanResponse = {
   report_code: string;
 };
 
+export type Laporan = {
+  id: number;
+  user_id: number;
+  category_id: number;
+  status_id: number;
+  title: string;
+  description: string;
+  chronology: string;
+  location: string;
+  incident_date: string;
+  is_anonymous: 0 | 1;
+  created_at: string;
+  report_code: string;
+};
+
 // ============================================================
 // HELPERS — authenticated requests
 // ============================================================
@@ -100,7 +115,23 @@ async function authPost<T>(endpoint: string, body: FormData): Promise<T> {
     body,
   });
 
-  const data = await res.json();
+  const data = await res.json().catch(() => ({}));
+
+  if (!res.ok) {
+    throw new Error(data.message || data.error || 'Terjadi kesalahan');
+  }
+
+  return data;
+}
+
+async function authGet<T>(endpoint: string): Promise<T> {
+  const res = await fetch(`${API_URL}${endpoint}`, {
+    headers: {
+      Authorization: `Bearer ${getToken()}`,
+    },
+  });
+
+  const data = await res.json().catch(() => ({}));
 
   if (!res.ok) {
     throw new Error(data.message || data.error || 'Terjadi kesalahan');
@@ -131,3 +162,9 @@ export const createLaporan = (payload: CreateLaporanPayload) => {
 
   return authPost<CreateLaporanResponse>('/laporan/create', formData);
 };
+
+export const fetchLaporanByUser = () =>
+  authGet<Laporan[]>('/laporan/data');
+
+export const fetchLaporanById = (id: string) =>
+  authGet<Laporan[]>(`/laporan/id/${id}`);

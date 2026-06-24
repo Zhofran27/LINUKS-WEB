@@ -635,7 +635,7 @@ export default function CreateLaporanForm() {
           form={form}
           setForm={setForm}
           onNext={() => setStep(2)}
-          onBack={() => router.push('/dashboard')}
+          onBack={() => router.push('/laporan')}
         />
       )}
       {step === 2 && (
