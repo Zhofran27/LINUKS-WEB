@@ -21,12 +21,7 @@ export type LoginPayload = {
 export type AuthResponse = {
   message: string;
   token?: string;
-  user?: {
-    id: number;
-    name: string;
-    email: string;
-    role: string;
-  };
+  user?: User;
 };
 
 export type CreateLaporanPayload = {
@@ -48,17 +43,28 @@ export type CreateLaporanResponse = {
 
 export type Laporan = {
   id: number;
-  report_code: string;
-  title: string;
-  status_id: number;
-  description: string;
+  user_id?: number;
   category_id: number;
+  status_id: number;
+  title: string;
+  description: string;
+  chronology?: string;
   location: string;
   incident_date: string;
-  is_anonymous: number;
+  is_anonymous: 0 | 1 | number;
   created_at: string;
+  report_code: string;
   status?: { name: string };
   category?: { name: string };
+};
+
+export type LibraryBook = {
+  id: number;
+  title: string;
+  description?: string;
+  category?: string;
+  image?: string;
+  [key: string]: unknown;
 };
 
 // ============================================================
@@ -66,60 +72,65 @@ export type Laporan = {
 // ============================================================
 
 function getToken() {
+  if (typeof window === 'undefined') return '';
   return localStorage.getItem('token') || '';
 }
 
+async function parseJson(res: Response) {
+  return res.json().catch(() => ({}));
+}
+
+function getErrorMessage(data: unknown, fallback: string) {
+  if (data && typeof data === 'object') {
+    const record = data as Record<string, unknown>;
+    if (typeof record.message === 'string') return record.message;
+    if (typeof record.error === 'string') return record.error;
+  }
+
+  return fallback;
+}
+
+async function request<T>(endpoint: string, init: RequestInit = {}): Promise<T> {
+  const res = await fetch(`${API_URL}${endpoint}`, init);
+  const data = await parseJson(res);
+
+  if (!res.ok) {
+    throw new Error(getErrorMessage(data, `HTTP ${res.status}`));
+  }
+
+  return data as T;
+}
+
+function authHeaders(contentType?: string): HeadersInit {
+  const token = getToken();
+  if (!token) throw new Error('Unauthorized');
+
+  return {
+    Authorization: `Bearer ${token}`,
+    ...(contentType ? { 'Content-Type': contentType } : {}),
+  };
+}
+
 async function post<T>(endpoint: string, body: unknown): Promise<T> {
-  const res = await fetch(`${API_URL}${endpoint}`, {
+  return request<T>(endpoint, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
   });
-
-  const data = await res.json();
-
-  if (!res.ok) {
-    throw new Error(data.message || 'Terjadi kesalahan');
-  }
-
-  return data;
 }
 
 async function authGet<T>(endpoint: string): Promise<T> {
-  const token = getToken();
-  if (!token) throw new Error('Unauthorized');
-
-  const res = await fetch(`${API_URL}${endpoint}`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-      'Content-Type': 'application/json',
-    },
+  return request<T>(endpoint, {
+    headers: authHeaders('application/json'),
   });
-
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err.message || err.error || `HTTP ${res.status}`);
-  }
-
-  return res.json();
 }
 
-async function authPost<T>(endpoint: string, body: FormData): Promise<T> {
-  const res = await fetch(`${API_URL}${endpoint}`, {
+async function authPostForm<T>(endpoint: string, body: FormData): Promise<T> {
+  return request<T>(endpoint, {
     method: 'POST',
-    headers: {
-      Authorization: `Bearer ${getToken()}`,
-    },
+    headers: authHeaders(),
     body,
   });
-
-  const data = await res.json();
-
-  if (!res.ok) {
-    throw new Error(data.message || data.error || 'Terjadi kesalahan');
-  }
-
-  return data;
 }
 
 // ============================================================
@@ -134,7 +145,6 @@ export const loginUser = (payload: LoginPayload) =>
 
 export const getGoogleLoginUrl = () =>
   `${API_URL}/Authuser/google`;
-
 
 // ============================================================
 // USER
@@ -156,6 +166,9 @@ export const fetchActiveLaporan = () =>
 export const fetchLaporanByUser = () =>
   authGet<Laporan[]>('/laporan/data');
 
+export const fetchLaporanById = (id: string) =>
+  authGet<Laporan[]>(`/laporan/id/${id}`);
+
 export const createLaporan = (payload: CreateLaporanPayload) => {
   const formData = new FormData();
   formData.append('title', payload.title);
@@ -172,10 +185,12 @@ export const createLaporan = (payload: CreateLaporanPayload) => {
     });
   }
 
-  return authPost<CreateLaporanResponse>('/laporan/create', formData);
+  return authPostForm<CreateLaporanResponse>('/laporan/create', formData);
 };
 
-export async function fetchLibraryBooks() {
-  return fetchWithAuth('/library');
-}
+// ============================================================
+// LIBRARY
+// ============================================================
 
+export const fetchLibraryBooks = () =>
+  authGet<LibraryBook[]>('/library');
