@@ -1,10 +1,11 @@
 import { Router } from 'express';
-import { getLaporan, getLaporanById, getLaporanDetail, getLaporanOverview, getLaporanByCategory, getLaporanByNama, updateStatusLaporan } from '../../controllers/admin/laporan.controller';
+import { getLaporan, getLaporanById, getLaporanDetail, getLaporanOverview, getLaporanPerMonth, getLaporanByCategory, getLaporanByNama, updateStatusLaporan } from '../../controllers/admin/laporan.controller';
 import { authorizeRole, verifyToken } from '../../middlewares/auth.middleware';
 
 const router = Router();
 
 router.get('/overview', verifyToken, authorizeRole(['admin']), getLaporanOverview);
+router.get('/monthly', verifyToken, authorizeRole(['admin']), getLaporanPerMonth);
 router.get('/data', verifyToken, authorizeRole(['admin']), getLaporan);
 router.get('/id/:id', verifyToken, authorizeRole(['admin']), getLaporanById);
 router.get('/detail/:id', verifyToken, authorizeRole(['admin']), getLaporanDetail);

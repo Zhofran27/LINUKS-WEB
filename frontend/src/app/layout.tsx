@@ -1,24 +1,24 @@
 import type { Metadata } from "next";
 import { Sora, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
-import AuroraBackground from "@/components/aurora/AuroraBackground";
 import ConditionalLayout from "@/components/layout/ConditionalLayout";
 
+
 const sora = Sora({
-  subsets: ["latin"],
-  variable: "--font-sora",
-  weight: ["400", "600", "700", "800"],
+  subsets: ['latin'],
+  variable: '--font-sora',
+  weight: ['400', '600', '700', '800'],
 });
 
 const jakarta = Plus_Jakarta_Sans({
-  subsets: ["latin"],
-  variable: "--font-jakarta",
-  weight: ["400", "500", "600", "700", "800"],
+  subsets: ['latin'],
+  variable: '--font-jakarta',
+  weight: ['400', '500', '600', '700', '800'],
 });
 
 export const metadata: Metadata = {
-  title: "LINUKS - Safe Space",
-  description: "Platform pelaporan aman",
+  title: 'LINUKS - Safe Space',
+  description: 'Platform pelaporan aman',
 };
 
 export default function RootLayout({
@@ -35,7 +35,6 @@ export default function RootLayout({
         />
       </head>
       <body className={`${sora.variable} ${jakarta.variable} font-sans antialiased`}>
-        <AuroraBackground />
         <ConditionalLayout>
           {children}
         </ConditionalLayout>

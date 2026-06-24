@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express'
 import { AuthRequest } from '../../middlewares/auth.middleware';
-import { and, count, eq, gte, lt } from 'drizzle-orm';
+import { and, count, eq, gte, lt, notInArray, sql } from 'drizzle-orm';
 import { db } from '../../databases/db';
 import { reports, categories, statuses, report_files, users } from '../../databases/schema';
 import { withReportCode } from '../../utils/report-code';
@@ -8,6 +8,10 @@ import { Activity } from '../../models/activity.model.js';
 import { sendStatusUpdateEmail } from '../../utils/mailer';
 
 const getCountValue = (result: { total: number }[]) => result[0]?.total ?? 0;
+
+const getGrowthPercent = (current: number, previous: number) => previous === 0
+    ? current > 0 ? 100 : 0
+    : Math.round(((current - previous) / previous) * 100);
 
 export const getLaporan = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
@@ -41,36 +45,131 @@ export const getLaporanOverview = async (req: AuthRequest, res: Response, next: 
         const previousPeriodStart = new Date(now);
         previousPeriodStart.setDate(now.getDate() - 60);
 
-        const totalReport = await db
-            .select({ total: count(reports.id) })
-            .from(reports);
+        const activeStatusCondition = notInArray(statuses.name, ['Selesai', 'Ditolak']);
+        const resolvedStatusCondition = eq(statuses.name, 'Selesai');
+        const currentPeriodCondition = gte(reports.created_at, currentPeriodStart);
+        const previousPeriodCondition = and(
+            gte(reports.created_at, previousPeriodStart),
+            lt(reports.created_at, currentPeriodStart)
+        );
 
-        const currentPeriodReport = await db
+        const countReports = (periodCondition?: ReturnType<typeof and>) => db
             .select({ total: count(reports.id) })
             .from(reports)
-            .where(gte(reports.created_at, currentPeriodStart));
+            .where(periodCondition);
 
-        const previousPeriodReport = await db
+        const countReportsByStatus = (
+            statusCondition: typeof activeStatusCondition | typeof resolvedStatusCondition,
+            periodCondition?: ReturnType<typeof and>
+        ) => db
             .select({ total: count(reports.id) })
             .from(reports)
-            .where(
-                and(
-                    gte(reports.created_at, previousPeriodStart),
-                    lt(reports.created_at, currentPeriodStart)
-                )
-            );
+            .innerJoin(statuses, eq(statuses.id, reports.status_id))
+            .where(periodCondition ? and(statusCondition, periodCondition) : statusCondition);
+
+        const [
+            totalReport,
+            currentPeriodReport,
+            previousPeriodReport,
+            activeReport,
+            currentActiveReport,
+            previousActiveReport,
+            resolvedReport,
+            currentResolvedReport,
+            previousResolvedReport,
+        ] = await Promise.all([
+            countReports(),
+            countReports(currentPeriodCondition),
+            countReports(previousPeriodCondition),
+            countReportsByStatus(activeStatusCondition),
+            countReportsByStatus(activeStatusCondition, currentPeriodCondition),
+            countReportsByStatus(activeStatusCondition, previousPeriodCondition),
+            countReportsByStatus(resolvedStatusCondition),
+            countReportsByStatus(resolvedStatusCondition, currentPeriodCondition),
+            countReportsByStatus(resolvedStatusCondition, previousPeriodCondition),
+        ]);
 
         const totalReports = getCountValue(totalReport);
-        const currentReports = getCountValue(currentPeriodReport);
-        const previousReports = getCountValue(previousPeriodReport);
-        const growthPercent = previousReports === 0
-            ? currentReports > 0 ? 100 : 0
-            : Math.round(((currentReports - previousReports) / previousReports) * 100);
+        const activeCases = getCountValue(activeReport);
+        const resolvedCases = getCountValue(resolvedReport);
+        const totalGrowthPercent = getGrowthPercent(
+            getCountValue(currentPeriodReport),
+            getCountValue(previousPeriodReport)
+        );
+        const activeGrowthPercent = getGrowthPercent(
+            getCountValue(currentActiveReport),
+            getCountValue(previousActiveReport)
+        );
+        const resolvedGrowthPercent = getGrowthPercent(
+            getCountValue(currentResolvedReport),
+            getCountValue(previousResolvedReport)
+        );
 
         return res.status(200).json({
             total_reports: totalReports,
             total_reports_label: totalReports.toLocaleString('en-US'),
-            growth_percent: growthPercent,
+            growth_percent: totalGrowthPercent,
+            active_cases: activeCases,
+            active_cases_label: activeCases.toLocaleString('en-US'),
+            active_growth_percent: activeGrowthPercent,
+            resolved_cases: resolvedCases,
+            resolved_cases_label: resolvedCases.toLocaleString('en-US'),
+            resolved_growth_percent: resolvedGrowthPercent,
+        });
+    } catch (error) {
+        next(error);
+    }
+}
+
+export const getLaporanPerMonth = async (req: AuthRequest, res: Response, next: NextFunction) => {
+    try {
+        const currentYear = new Date().getFullYear();
+        const year = req.query.year === undefined ? currentYear : Number(req.query.year);
+
+        if (!Number.isInteger(year) || year < 2000 || year > 9999) {
+            return res.status(400).json({
+                error: 'Invalid year. Use a four-digit year, for example 2024',
+            });
+        }
+
+        const periodStart = new Date(Date.UTC(year, 0, 1));
+        const periodEnd = new Date(Date.UTC(year + 1, 0, 1));
+
+        const reportCounts = await db
+            .select({
+                month: sql<number>`extract(month from ${reports.created_at})::int`,
+                total: count(reports.id),
+            })
+            .from(reports)
+            .where(
+                and(
+                    gte(reports.created_at, periodStart),
+                    lt(reports.created_at, periodEnd)
+                )
+            )
+            .groupBy(sql`extract(month from ${reports.created_at})`)
+            .orderBy(sql`extract(month from ${reports.created_at})`);
+
+        const totalsByMonth = new Map(
+            reportCounts.map(({ month, total }) => [Number(month), Number(total)])
+        );
+        const monthLabels = [
+            'JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN',
+            'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC',
+        ];
+        const reportsPerMonth = monthLabels.map((label, index) => ({
+            month: index + 1,
+            label,
+            total_reports: totalsByMonth.get(index + 1) ?? 0,
+        }));
+
+        return res.status(200).json({
+            year,
+            total_reports: reportsPerMonth.reduce(
+                (total, month) => total + month.total_reports,
+                0
+            ),
+            reports_per_month: reportsPerMonth,
         });
     } catch (error) {
         next(error);

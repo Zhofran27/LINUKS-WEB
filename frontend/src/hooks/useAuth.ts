@@ -1,57 +1,65 @@
 'use client';
 
 import { useSyncExternalStore } from 'react';
+import { getToken, getUser, User } from '@/lib/auth';
 
-type AuthUser = {
-  id?: number;
-  name?: string;
-  email?: string;
-  role?: string;
+type AuthState = {
+  user: User | null;
+  token: string | null;
 };
 
+let lastToken: string | null = null;
 let lastStoredUser: string | null = null;
-let lastUser: AuthUser | null = null;
-
-export function useAuth() {
-  const user = useSyncExternalStore(subscribeToAuth, getAuthSnapshot, getServerSnapshot);
-
-  return { user, loading: false };
-}
+let lastSnapshot: AuthState = { user: null, token: null };
 
 function subscribeToAuth(onStoreChange: () => void) {
   window.addEventListener('storage', onStoreChange);
+  window.addEventListener('auth-change', onStoreChange);
 
   return () => {
     window.removeEventListener('storage', onStoreChange);
+    window.removeEventListener('auth-change', onStoreChange);
   };
 }
 
-function getAuthSnapshot() {
-  const token = localStorage.getItem('token');
+function getAuthSnapshot(): AuthState {
+  const token = getToken();
   const storedUser = localStorage.getItem('user');
 
   if (!token || !storedUser) {
+    lastToken = null;
     lastStoredUser = null;
-    lastUser = null;
-    return null;
+    lastSnapshot = { user: null, token: null };
+    return lastSnapshot;
   }
 
-  if (storedUser === lastStoredUser) {
-    return lastUser;
+  if (token === lastToken && storedUser === lastStoredUser) {
+    return lastSnapshot;
   }
 
-  try {
-    lastStoredUser = storedUser;
-    lastUser = JSON.parse(storedUser) as AuthUser;
-    return lastUser;
-  } catch {
-    localStorage.removeItem('user');
-    lastStoredUser = null;
-    lastUser = null;
-    return null;
-  }
+  const user = getUser();
+  lastToken = token;
+  lastStoredUser = storedUser;
+  lastSnapshot = { user, token };
+
+  return lastSnapshot;
 }
 
-function getServerSnapshot() {
-  return null;
+function getServerSnapshot(): AuthState {
+  return { user: null, token: null };
+}
+
+export function useAuth() {
+  const auth = useSyncExternalStore(
+    subscribeToAuth,
+    getAuthSnapshot,
+    getServerSnapshot,
+  );
+
+  return {
+    user: auth.user,
+    token: auth.token,
+    loading: false,
+    isAuthenticated: Boolean(auth.token && auth.user),
+  };
 }

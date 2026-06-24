@@ -1,10 +1,11 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { useAuth } from '@/hooks/useAuth';
 
 const menuItems = [
-  { icon: "dashboard", label: "Dashboard", href: "/" },
+  { icon: "dashboard", label: "Dashboard", href: "/dashboard" },
   { icon: "description", label: "Reports", href: "/laporan" },
   { icon: "auto_stories", label: "Library", href: "/library" },
   { icon: "person", label: "Profile", href: "/profile" },
@@ -13,13 +14,17 @@ const menuItems = [
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const { user, loading } = useAuth();
+
+  const displayName = loading ? '...' : (user?.name || 'Guest');
+  const roleLabel = user?.role === 'admin' ? 'Admin' : 'Safe Member';
 
   return (
     <aside className="hidden lg:flex h-screen w-72 fixed left-0 top-0 flex-col bg-white/40 backdrop-blur-2xl border-r border-white/50 z-50 p-6 gap-4">
       <div className="mb-8">
-        <span className="font-headline-sm text-headline-sm font-bold text-primary tracking-tighter">
+        <Link href="/" className="font-headline-sm text-headline-sm font-bold text-primary tracking-tighter">
           LINUKS
-        </span>
+        </Link>
       </div>
 
       <div className="flex items-center gap-3 p-3 mb-6 bg-white/30 rounded-[2rem]">
@@ -31,14 +36,14 @@ export default function Sidebar() {
           />
         </div>
         <div className="flex flex-col overflow-hidden">
-          <span className="font-label-md text-label-md text-on-surface truncate">Zhofran</span>
-          <span className="text-[10px] text-on-surface-variant uppercase tracking-widest">Safe Member</span>
+          <span className="font-label-md text-label-md text-on-surface truncate">{displayName}</span>
+          <span className="text-[10px] text-on-surface-variant uppercase tracking-widest">{roleLabel}</span>
         </div>
       </div>
 
       <div className="flex flex-col gap-2 flex-grow">
         {menuItems.map((item) => {
-          const isActive = pathname === item.href || (item.href === "/" && (pathname === "/" || pathname === "/dashboard"));
+          const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
           return (
             <Link
               key={item.href}
@@ -46,8 +51,8 @@ export default function Sidebar() {
               className={`
                 flex items-center gap-3 p-4 rounded-[2rem] transition-all duration-200
                 ${isActive 
-                  ? "bg-primary-container/30 text-on-primary-container font-bold" 
-                  : "text-on-surface-variant hover:bg-white/20 hover:translate-x-1"
+                  ? 'bg-primary-container/30 text-on-primary-container font-bold' 
+                  : 'text-on-surface-variant hover:bg-white/20 hover:translate-x-1'
                 }
               `}
             >

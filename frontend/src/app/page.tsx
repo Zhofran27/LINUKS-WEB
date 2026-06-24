@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { useState, useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
 interface Book {
   id: string;
@@ -12,22 +12,43 @@ interface Book {
   category: string;
 }
 
-export default function LandingPage() {
-  const [books, setBooks] = useState<Book[]>([]);
-  const [booksLoading, setBooksLoading] = useState(true);
+const libraryBooks: Book[] = [
+  {
+    id: '1',
+    title: '5 Cara Mengelola Kecemasan Hari Ini',
+    authors: ['Dr. Sarah Wijaya'],
+    thumbnail: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBC8lcEj4lgYORw1PmTvHNAFGBEu4f-sAcv6D1GAthzCWGDRJJsjuktK1i-_5ZIOwKJx6rZcON1HqIyuj_nmfil_9fGQebxNT9U8fP6ZqUjiPyHbTLBYb4I5-KrTlT_pLastMYHDDO8R2DDi6Tdz6ZQ8UQtyvX3vG8KP8eWcMCB_jNjlsF4XGwaXmkBjq0VMCYPZMeE6xfINDnzYY2oqu6cs2HT_M14O08Lp-dxwWLi0HqX68XP5Fo0TuSGk94cPka9CiaUICkVxIRs',
+    category: 'Mental Health',
+  },
+  {
+    id: '2',
+    title: 'Journaling Sebagai Terapi Mandiri',
+    authors: ['Rina Andari, M.Psi'],
+    thumbnail: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDha6LjwUHl2y7x52_pkOFuhBUu0KEKF3ZUephmMc8moCwrTMGRsnaH-ABDTi9O46u1cVNb16D3YmbGEUPqYxXbM9QYoqcNcCOpRjYePoteMS-C0LRo0-7gaFIZ7bRxrXyowskOZ5GppczKEkXmJZoTLh7NExwfupuzOwWc8HU_V1dVWwN_ly7auxRHrG3Q81T1_pNWlQiTc-P87jR8V13nAZU_zn5U_0weyKzf_JZGuHQKqlAJM4cQfNcvaNjgra5CROekRy36FP-Z',
+    category: 'Self Care',
+  },
+  {
+    id: '3',
+    title: 'Pahami Hakmu di Mata Hukum',
+    authors: ['LBH Jakarta'],
+    thumbnail: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBdOzfL4fXzkJ3Ci71XHqgTdrpNkJL5O070CWILWc1aBC9Qx8becDoYjHE10mWXoG2CJvAA8Jsyf3i_pbthWty--Lv7lkRYCdkOUGaatXsg-2cCrvGcCGFe6Kay2tryLxhY9QTZAC8dNBi6LWfG1wWYac5WkzpxGBhW65nSVqer9T_jWKuSTb8GcB_L-tRCEAmG1PUtnTe5ulmjVEHJjIJzP7NyX2rKNreIXYebOW2git4YkZjQjex3m_WBvsFqxuDEoKknayaqnn7J',
+    category: 'Legal Info',
+  },
+  {
+    id: '4',
+    title: 'Kisah Mereka yang Telah Bangkit',
+    authors: ['Tim LINUKS'],
+    thumbnail: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBL3qpVjQYG9T3NCdHt6gxSh3SC-VFybxuX00HpyndCBg3OaSvrUpe3Xc9bJHGDu0TYumPj8LA8awf-A4suUIfnf2XC3g207-7X_QLzpKplf-IEZOD-ji6NFcLyFF6wvOoCTtOC4LxoGBoP1lrvv2P6iTcidjq4r1s3So7e2hJWhxd6aYKKQ1XxyHJBUJ3uLZIk5O_sMIZNb79ge9oWFB-7VqJqe502RtCd1rO-pl14mS1-_KG3D3ZJkEfqyzyPdMp3mhtNTlvS0uG-',
+    category: 'Community',
+  },
+];
 
-  useEffect(() => {
-    fetch('/api/library')
-      .then((res) => res.json())
-      .then((data) => {
-        setBooks(data.slice(0, 5));
-        setBooksLoading(false);
-      })
-      .catch(() => {
-        setBooks([]);
-        setBooksLoading(false);
-      });
-  }, []);
+export default function LandingPage() {
+  const solusiRef = useRef<HTMLDivElement>(null);
+
+  const scrollToSolusi = () => {
+    solusiRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
 
   useEffect(() => {
     const canvas = document.getElementById('shader-canvas-landing') as HTMLCanvasElement;
@@ -105,6 +126,7 @@ void main() {
 }`;
 
     function cs(type: number, src: string) {
+      if (!gl) throw new Error('WebGL not available');
       const s = gl.createShader(type)!;
       gl.shaderSource(s, src);
       gl.compileShader(s);
@@ -131,6 +153,7 @@ void main() {
     let animationId: number;
     function render(t: number) {
       if (!ro) syncSize();
+      if (!gl || !canvas) return;
       gl.viewport(0, 0, canvas.width, canvas.height);
       if (uTime) gl.uniform1f(uTime, t * 0.001);
       if (uRes) gl.uniform2f(uRes, canvas.width, canvas.height);
@@ -146,29 +169,46 @@ void main() {
   }, []);
 
   return (
-    <div className="min-h-screen overflow-x-hidden bg-background">
-      <div className="fixed inset-0 w-full h-full -z-10 opacity-60" style={{display: 'block'}}>
+    <div className="min-h-screen overflow-x-hidden landing-page">
+      <div className="fixed inset-0 w-full h-full z-0" style={{display: 'block'}}>
         <canvas id="shader-canvas-landing" style={{display: 'block', width: '100%', height: '100%'}} />
       </div>
 
-      <nav className="fixed top-0 w-full z-50 bg-white/40 backdrop-blur-xl border-b border-white/50 shadow-[0_8px_32px_0_rgba(53,9,41,0.05)] h-20 px-grid-margin flex justify-between items-center">
-        <div className="flex items-center gap-2">
-          <Image alt="LINUKS Logo" className="h-10 w-10 object-contain" src="/logo.png" width={40} height={40} />
+      {/* Navbar: HAPUS REPORTS */}
+      <nav className="fixed top-0 left-0 w-full z-50 bg-white/20 backdrop-blur-xl border-b border-white/30 shadow-[0_8px_32px_0_rgba(53,9,41,0.05)] h-20 px-6 md:px-12 flex justify-between items-center">
+        <div className="flex items-center gap-3">
+          <Image 
+            alt="LINUKS Logo" 
+            className="h-16 w-16 object-contain" 
+            src="/logo.png" 
+            width={64} 
+            height={64} 
+          />
           <span className="font-display-lg-mobile text-display-lg-mobile font-extrabold text-primary tracking-tighter">LINUKS</span>
         </div>
+        
         <div className="hidden md:flex items-center gap-8 font-body-md text-body-md">
           <Link href="/" className="text-primary font-bold border-b-2 border-primary pb-1">Home</Link>
-          <Link href="/library" className="text-on-surface-variant hover:bg-primary/10 transition-colors duration-300 px-3 py-1 rounded-lg">Library</Link>
-          <Link href="/reports" className="text-on-surface-variant hover:bg-primary/10 transition-colors duration-300 px-3 py-1 rounded-lg">Reports</Link>
+          <Link href="/library" className="text-on-surface-variant hover:bg-white/10 transition-colors duration-300 px-3 py-1 rounded-lg">Library</Link>
         </div>
+        
         <div className="flex items-center gap-4">
-          <Link href="/dashboard" className="px-6 py-2 bg-primary text-white rounded-full font-label-md font-bold hover:shadow-lg transition-all">
-            Masuk
+          <Link 
+            href="/login"
+            className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-white/20 transition-colors"
+          >
+            <span className="material-symbols-outlined text-on-surface-variant text-[24px]">notifications</span>
+          </Link>
+          <Link 
+            href="/login" 
+            className="w-10 h-10 flex items-center justify-center rounded-full border-2 border-primary/30 hover:bg-primary/10 transition-colors"
+          >
+            <span className="material-symbols-outlined text-primary text-[20px]">person</span>
           </Link>
         </div>
       </nav>
 
-      <header className="pt-40 pb-24 px-grid-margin relative overflow-hidden">
+      <header className="pt-40 pb-24 px-6 md:px-12 relative overflow-hidden z-10">
         <div className="max-w-4xl mx-auto text-center">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 glass-card rounded-full text-primary font-label-md mb-8">
             <span className="material-symbols-outlined text-[18px]">auto_awesome</span>
@@ -181,18 +221,24 @@ void main() {
             Ruang aman untuk bercerita, melapor, dan mendapatkan dukungan tanpa takut dihakimi. Identitasmu, kendalimu. ✨
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link href="/dashboard" className="w-full sm:w-auto px-8 py-4 bg-primary text-on-primary font-label-md rounded-full hover:shadow-lg hover:shadow-primary/20 active:scale-95 transition-all flex items-center justify-center gap-2 shadow-[inset_0_2px_4px_rgba(255,255,255,0.3)]">
+            <Link 
+              href="/login" 
+              className="w-full sm:w-auto px-8 py-4 bg-primary text-white font-label-md rounded-full hover:shadow-lg hover:shadow-primary/20 active:scale-95 transition-all flex items-center justify-center gap-2 shadow-[inset_0_2px_4px_rgba(255,255,255,0.3)]"
+            >
               Cerita Sekarang
               <span className="material-symbols-outlined">send</span>
             </Link>
-            <button className="w-full sm:w-auto px-8 py-4 glass-card text-primary font-label-md rounded-full hover:bg-white/60 active:scale-95 transition-all">
+            <button 
+              onClick={scrollToSolusi}
+              className="w-full sm:w-auto px-8 py-4 glass-card text-primary font-label-md rounded-full hover:bg-white/60 active:scale-95 transition-all"
+            >
               Pelajari LINUKS
             </button>
           </div>
         </div>
       </header>
 
-      <section className="py-section-gap px-grid-margin">
+      <section ref={solusiRef} className="py-section-gap px-6 md:px-12 relative z-10">
         <div className="max-w-7xl mx-auto">
           <div className="mb-12">
             <h2 className="font-headline-md text-headline-md text-on-background mb-4">Solusi Aman Untukmu</h2>
@@ -243,7 +289,7 @@ void main() {
         </div>
       </section>
 
-      <section className="py-section-gap px-grid-margin bg-surface-container-low/50">
+      <section className="py-section-gap px-6 md:px-12 bg-white/30 backdrop-blur-sm relative z-10">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="font-headline-md text-headline-md text-on-background mb-4">Empat Langkah Menuju Aman</h2>
@@ -283,7 +329,7 @@ void main() {
         </div>
       </section>
 
-      <section className="py-section-gap px-grid-margin overflow-hidden relative">
+      <section className="py-section-gap px-6 md:px-12 overflow-hidden relative z-10">
         <div className="max-w-7xl mx-auto glass-card p-12 rounded-xl flex flex-col md:flex-row items-center justify-around gap-12 border-primary/20">
           <div className="text-center">
             <div className="text-display-lg-mobile md:text-display-lg font-extrabold text-primary mb-2">5000+</div>
@@ -302,7 +348,8 @@ void main() {
         </div>
       </section>
 
-      <section className="py-section-gap px-grid-margin">
+      {/* SAFE SPACE LIBRARY — DENGAN FOTO ASLI DARI ACUAN */}
+      <section className="py-section-gap px-6 md:px-12 relative z-10">
         <div className="max-w-7xl mx-auto">
           <div className="flex justify-between items-end mb-12">
             <div>
@@ -315,36 +362,72 @@ void main() {
             </Link>
           </div>
 
-          {booksLoading ? (
-            <div className="pinterest-grid">
-              {[1, 2, 3, 4, 5].map((i) => (
-                <div key={i} className="glass-card rounded-lg overflow-hidden mb-6 animate-pulse">
-                  <div className="w-full h-64 bg-white/20"></div>
-                  <div className="p-4 space-y-2">
-                    <div className="h-3 bg-white/20 rounded-full w-1/3"></div>
-                    <div className="h-4 bg-white/20 rounded-full w-3/4"></div>
-                  </div>
-                </div>
-              ))}
+          <div className="pinterest-grid">
+            {/* Card 1 — Mental Health */}
+            <div className="glass-card rounded-2xl overflow-hidden mb-6 group cursor-pointer">
+              <img 
+                className="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-500" 
+                src="https://lh3.googleusercontent.com/aida-public/AB6AXuBC8lcEj4lgYORw1PmTvHNAFGBEu4f-sAcv6D1GAthzCWGDRJJsjuktK1i-_5ZIOwKJx6rZcON1HqIyuj_nmfil_9fGQebxNT9U8fP6ZqUjiPyHbTLBYb4I5-KrTlT_pLastMYHDDO8R2DDi6Tdz6ZQ8UQtyvX3vG8KP8eWcMCB_jNjlsF4XGwaXmkBjq0VMCYPZMeE6xfINDnzYY2oqu6cs2HT_M14O08Lp-dxwWLi0HqX68XP5Fo0TuSGk94cPka9CiaUICkVxIRs"
+                alt="5 Cara Mengelola Kecemasan"
+              />
+              <div className="p-4">
+                <h4 className="font-label-md text-primary mb-1">MENTAL HEALTH</h4>
+                <p className="font-bold">5 Cara Mengelola Kecemasan Hari Ini</p>
+              </div>
             </div>
-          ) : (
-            <div className="pinterest-grid">
-              {books.map((book) => (
-                <div key={book.id} className="glass-card rounded-lg overflow-hidden mb-6 group cursor-pointer">
-                  <img className="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-500" src={book.thumbnail || 'https://via.placeholder.com/400x600?text=No+Cover'} alt={book.title} />
-                  <div className="p-4">
-                    <h4 className="font-label-md text-primary mb-1">{book.category || 'BOOK'}</h4>
-                    <p className="font-bold">{book.title}</p>
-                    <p className="text-caption text-on-surface-variant">{book.authors?.join(', ') || 'Unknown Author'}</p>
-                  </div>
-                </div>
-              ))}
+
+            {/* Card 2 — Self Care */}
+            <div className="glass-card rounded-2xl overflow-hidden mb-6 group cursor-pointer">
+              <img 
+                className="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-500" 
+                src="https://lh3.googleusercontent.com/aida-public/AB6AXuDha6LjwUHl2y7x52_pkOFuhBUu0KEKF3ZUephmMc8moCwrTMGRsnaH-ABDTi9O46u1cVNb16D3YmbGEUPqYxXbM9QYoqcNcCOpRjYePoteMS-C0LRo0-7gaFIZ7bRxrXyowskOZ5GppczKEkXmJZoTLh7NExwfupuzOwWc8HU_V1dVWwN_ly7auxRHrG3Q81T1_pNWlQiTc-P87jR8V13nAZU_zn5U_0weyKzf_JZGuHQKqlAJM4cQfNcvaNjgra5CROekRy36FP-Z"
+                alt="Journaling Sebagai Terapi"
+              />
+              <div className="p-4">
+                <h4 className="font-label-md text-secondary mb-1">SELF CARE</h4>
+                <p className="font-bold">Journaling Sebagai Terapi Mandiri</p>
+              </div>
             </div>
-          )}
+
+            {/* Card 3 — Quote */}
+            <div className="glass-card rounded-2xl overflow-hidden mb-6 group cursor-pointer">
+              <div className="bg-primary/10 p-8 flex flex-col items-center justify-center text-center min-h-[200px]">
+                <span className="material-symbols-outlined text-[48px] text-primary mb-4">format_quote</span>
+                <p className="italic text-lg font-headline-sm mb-4">"Kamu tidak sendirian. Keberanianmu adalah awal dari cahaya."</p>
+                <span className="text-caption">- Community Note</span>
+              </div>
+            </div>
+
+            {/* Card 4 — Legal Info */}
+            <div className="glass-card rounded-2xl overflow-hidden mb-6 group cursor-pointer">
+              <img 
+                className="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-500" 
+                src="https://lh3.googleusercontent.com/aida-public/AB6AXuBdOzfL4fXzkJ3Ci71XHqgTdrpNkJL5O070CWILWc1aBC9Qx8becDoYjHE10mWXoG2CJvAA8Jsyf3i_pbthWty--Lv7lkRYCdkOUGaatXsg-2cCrvGcCGFe6Kay2tryLxhY9QTZAC8dNBi6LWfG1wWYac5WkzpxGBhW65nSVqer9T_jWKuSTb8GcB_L-tRCEAmG1PUtnTe5ulmjVEHJjIJzP7NyX2rKNreIXYebOW2git4YkZjQjex3m_WBvsFqxuDEoKknayaqnn7J"
+                alt="Pahami Hakmu"
+              />
+              <div className="p-4">
+                <h4 className="font-label-md text-tertiary mb-1">LEGAL INFO</h4>
+                <p className="font-bold">Pahami Hakmu di Mata Hukum</p>
+              </div>
+            </div>
+
+            {/* Card 5 — Community */}
+            <div className="glass-card rounded-2xl overflow-hidden mb-6 group cursor-pointer">
+              <img 
+                className="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-500" 
+                src="https://lh3.googleusercontent.com/aida-public/AB6AXuBL3qpVjQYG9T3NCdHt6gxSh3SC-VFybxuX00HpyndCBg3OaSvrUpe3Xc9bJHGDu0TYumPj8LA8awf-A4suUIfnf2XC3g207-7X_QLzpKplf-IEZOD-ji6NFcLyFF6wvOoCTtOC4LxoGBoP1lrvv2P6iTcidjq4r1s3So7e2hJWhxd6aYKKQ1XxyHJBUJ3uLZIk5O_sMIZNb79ge9oWFB-7VqJqe502RtCd1rO-pl14mS1-_KG3D3ZJkEfqyzyPdMp3mhtNTlvS0uG-"
+                alt="Kisah Mereka"
+              />
+              <div className="p-4">
+                <h4 className="font-label-md text-primary mb-1">COMMUNITY</h4>
+                <p className="font-bold">Kisah Mereka yang Telah Bangkit</p>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
-      <section className="py-section-gap px-grid-margin bg-white/30 backdrop-blur-sm">
+      <section className="py-section-gap px-6 md:px-12 bg-white/30 backdrop-blur-sm relative z-10">
         <div className="max-w-3xl mx-auto">
           <h2 className="font-headline-md text-headline-md text-center mb-12">Pertanyaan Populer</h2>
           <div className="space-y-4">
@@ -373,7 +456,7 @@ void main() {
         </div>
       </section>
 
-      <footer className="w-full py-section-gap bg-surface-container-low border-t border-outline-variant/30 flex flex-col md:flex-row justify-between items-center px-grid-margin gap-grid-gutter">
+      <footer className="w-full py-section-gap bg-surface-container-low border-t border-outline-variant/30 flex flex-col md:flex-row justify-between items-center px-6 md:px-12 gap-grid-gutter relative z-10">
         <div className="flex flex-col items-center md:items-start gap-4">
           <div className="flex items-center gap-2">
             <Image alt="LINUKS Logo" className="h-8 w-8" src="/logo.png" width={32} height={32} />
