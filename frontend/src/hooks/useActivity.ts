@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { getToken } from '@/lib/auth'; // import dari auth.ts
 
 interface ActivityMetadata {
   report_id?: number;
@@ -21,11 +22,6 @@ export function useActivity(limit: number = 5) {
   const [data, setData] = useState<Activity[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  const getToken = () => {
-    if (typeof window === 'undefined') return null;
-    return localStorage.getItem('token');
-  };
 
   const fetchActivities = useCallback(async () => {
     try {

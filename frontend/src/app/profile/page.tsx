@@ -81,25 +81,27 @@ export default function ProfilePage() {
   ];
 
   // WebGL shader effect
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
+useEffect(() => {
+  const canvas = canvasRef.current;
+  if (!canvas) return;
 
-    function syncSize() {
-      const w = canvas.clientWidth || 1280;
-      const h = canvas.clientHeight || 720;
-      if (canvas.width !== w || canvas.height !== h) {
-        canvas.width = w;
-        canvas.height = h;
-      }
+  const c = canvas; // TypeScript now knows c is non-null
+
+  function syncSize() {
+    const w = c.clientWidth || 1280;
+    const h = c.clientHeight || 720;
+    if (c.width !== w || c.height !== h) {
+      c.width = w;
+      c.height = h;
     }
+  }
 
-    const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(syncSize) : null;
-    if (ro) ro.observe(canvas);
-    syncSize();
+  const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(syncSize) : null;
+  if (ro) ro.observe(c);
+  syncSize();
 
-    const gl = (canvas.getContext('webgl') || canvas.getContext('experimental-webgl')) as WebGLRenderingContext | null;
-    if (!gl) return;
+  const gl = (c.getContext('webgl') || c.getContext('experimental-webgl')) as WebGLRenderingContext | null;
+  if (!gl) return;
 
     const vs = `attribute vec2 a_position;
 varying vec2 v_texCoord;
