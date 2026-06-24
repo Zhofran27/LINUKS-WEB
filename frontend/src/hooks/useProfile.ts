@@ -79,8 +79,22 @@ export function useProfile() {
         throw new Error('Failed to update profile');
       }
 
-      const updatedData = await res.json();
-      setData(prev => prev ? { ...prev, ...updateData } : null);
+      const responseData = await res.json();
+      const updatedData: ProfileData = Array.isArray(responseData)
+        ? responseData[0]
+        : responseData;
+
+      setData(updatedData);
+
+      const storedUser = localStorage.getItem('user');
+      const currentUser = storedUser ? JSON.parse(storedUser) : {};
+
+      localStorage.setItem(
+        'user',
+        JSON.stringify({ ...currentUser, ...updatedData }),
+      );
+      window.dispatchEvent(new Event('auth-change'));
+
       return updatedData;
     } catch (err) {
       throw err;
