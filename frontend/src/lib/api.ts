@@ -61,3 +61,7 @@ export const loginUser = (payload: LoginPayload) =>
 
 export const getGoogleLoginUrl = () =>
   `${API_URL}/Authuser/google`;
+
+export async function fetchLibraryBooks() {
+  return fetchWithAuth('/library');
+}
