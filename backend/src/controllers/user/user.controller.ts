@@ -47,7 +47,7 @@ export const updateUser = async (
 
         const { name, nim, email, password } = req.body;
 
-        if (!name && !email && !password) {
+        if (!name && !nim && !email && !password) {
             return res.status(400).json({ error: 'No fields to update' });
         }
 
@@ -65,8 +65,21 @@ export const updateUser = async (
             user[0].password = hashedPassword;
         }
 
-        const updatedUser = await db.update(users).set(user[0]).where(eq(users.id, userId));
-        return res.status(200).json(updatedUser);
+        const updatedUser = await db
+  .update(users)
+  .set({
+    ...(name && { name }),
+    ...(nim && { nim }),
+    ...(email && { email }),
+    ...(password && { password: await bcrypt.hash(password, 10) }),
+  })
+  .where(eq(users.id, userId))
+  .returning({
+    name: users.name,
+    email: users.email,
+    nim: users.nim,
+  });
+    return res.status(200).json(updatedUser);
     } catch (error) {
         next(error);
     }
