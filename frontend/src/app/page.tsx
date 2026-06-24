@@ -4,6 +4,45 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useEffect, useRef } from 'react';
 
+interface Book {
+  id: string;
+  title: string;
+  authors: string[];
+  thumbnail: string;
+  category: string;
+}
+
+const libraryBooks: Book[] = [
+  {
+    id: '1',
+    title: '5 Cara Mengelola Kecemasan Hari Ini',
+    authors: ['Dr. Sarah Wijaya'],
+    thumbnail: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBC8lcEj4lgYORw1PmTvHNAFGBEu4f-sAcv6D1GAthzCWGDRJJsjuktK1i-_5ZIOwKJx6rZcON1HqIyuj_nmfil_9fGQebxNT9U8fP6ZqUjiPyHbTLBYb4I5-KrTlT_pLastMYHDDO8R2DDi6Tdz6ZQ8UQtyvX3vG8KP8eWcMCB_jNjlsF4XGwaXmkBjq0VMCYPZMeE6xfINDnzYY2oqu6cs2HT_M14O08Lp-dxwWLi0HqX68XP5Fo0TuSGk94cPka9CiaUICkVxIRs',
+    category: 'Mental Health',
+  },
+  {
+    id: '2',
+    title: 'Journaling Sebagai Terapi Mandiri',
+    authors: ['Rina Andari, M.Psi'],
+    thumbnail: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDha6LjwUHl2y7x52_pkOFuhBUu0KEKF3ZUephmMc8moCwrTMGRsnaH-ABDTi9O46u1cVNb16D3YmbGEUPqYxXbM9QYoqcNcCOpRjYePoteMS-C0LRo0-7gaFIZ7bRxrXyowskOZ5GppczKEkXmJZoTLh7NExwfupuzOwWc8HU_V1dVWwN_ly7auxRHrG3Q81T1_pNWlQiTc-P87jR8V13nAZU_zn5U_0weyKzf_JZGuHQKqlAJM4cQfNcvaNjgra5CROekRy36FP-Z',
+    category: 'Self Care',
+  },
+  {
+    id: '3',
+    title: 'Pahami Hakmu di Mata Hukum',
+    authors: ['LBH Jakarta'],
+    thumbnail: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBdOzfL4fXzkJ3Ci71XHqgTdrpNkJL5O070CWILWc1aBC9Qx8becDoYjHE10mWXoG2CJvAA8Jsyf3i_pbthWty--Lv7lkRYCdkOUGaatXsg-2cCrvGcCGFe6Kay2tryLxhY9QTZAC8dNBi6LWfG1wWYac5WkzpxGBhW65nSVqer9T_jWKuSTb8GcB_L-tRCEAmG1PUtnTe5ulmjVEHJjIJzP7NyX2rKNreIXYebOW2git4YkZjQjex3m_WBvsFqxuDEoKknayaqnn7J',
+    category: 'Legal Info',
+  },
+  {
+    id: '4',
+    title: 'Kisah Mereka yang Telah Bangkit',
+    authors: ['Tim LINUKS'],
+    thumbnail: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBL3qpVjQYG9T3NCdHt6gxSh3SC-VFybxuX00HpyndCBg3OaSvrUpe3Xc9bJHGDu0TYumPj8LA8awf-A4suUIfnf2XC3g207-7X_QLzpKplf-IEZOD-ji6NFcLyFF6wvOoCTtOC4LxoGBoP1lrvv2P6iTcidjq4r1s3So7e2hJWhxd6aYKKQ1XxyHJBUJ3uLZIk5O_sMIZNb79ge9oWFB-7VqJqe502RtCd1rO-pl14mS1-_KG3D3ZJkEfqyzyPdMp3mhtNTlvS0uG-',
+    category: 'Community',
+  },
+];
+
 export default function LandingPage() {
   const solusiRef = useRef<HTMLDivElement>(null);
 
@@ -135,6 +174,7 @@ void main() {
         <canvas id="shader-canvas-landing" style={{display: 'block', width: '100%', height: '100%'}} />
       </div>
 
+      {/* Navbar: HAPUS REPORTS */}
       <nav className="fixed top-0 left-0 w-full z-50 bg-white/20 backdrop-blur-xl border-b border-white/30 shadow-[0_8px_32px_0_rgba(53,9,41,0.05)] h-20 px-6 md:px-12 flex justify-between items-center">
         <div className="flex items-center gap-3">
           <Image 
@@ -150,7 +190,6 @@ void main() {
         <div className="hidden md:flex items-center gap-8 font-body-md text-body-md">
           <Link href="/" className="text-primary font-bold border-b-2 border-primary pb-1">Home</Link>
           <Link href="/library" className="text-on-surface-variant hover:bg-white/10 transition-colors duration-300 px-3 py-1 rounded-lg">Library</Link>
-          <Link href="/reports" className="text-on-surface-variant hover:bg-white/10 transition-colors duration-300 px-3 py-1 rounded-lg">Reports</Link>
         </div>
         
         <div className="flex items-center gap-4">
@@ -309,6 +348,7 @@ void main() {
         </div>
       </section>
 
+      {/* SAFE SPACE LIBRARY — DENGAN FOTO ASLI DARI ACUAN */}
       <section className="py-section-gap px-6 md:px-12 relative z-10">
         <div className="max-w-7xl mx-auto">
           <div className="flex justify-between items-end mb-12">
@@ -322,56 +362,65 @@ void main() {
             </Link>
           </div>
 
-          <div className="columns-1 md:columns-2 lg:columns-3 gap-6 space-y-6">
-            <div className="break-inside-avoid glass-card rounded-2xl overflow-hidden group cursor-pointer hover:translate-y-[-4px] transition-all">
-              <div className="w-full h-64 bg-gradient-to-br from-primary/10 to-secondary/10 flex items-center justify-center">
-                <span className="material-symbols-outlined text-5xl text-primary/20">image</span>
-              </div>
-              <div className="p-5">
-                <h4 className="font-label-md text-primary mb-1 uppercase tracking-wider">Mental Health</h4>
-                <p className="font-bold text-on-background mb-1">5 Cara Mengelola Kecemasan Hari Ini</p>
-                <p className="text-caption text-on-surface-variant">Dr. Sarah Wijaya</p>
-              </div>
-            </div>
-
-            <div className="break-inside-avoid glass-card rounded-2xl overflow-hidden group cursor-pointer hover:translate-y-[-4px] transition-all p-8 text-center">
-              <div className="text-primary text-4xl font-serif mb-4">"</div>
-              <p className="font-body-md text-on-background italic mb-4">
-                "Kamu tidak sendirian. Keberanianmu adalah awal dari cahaya."
-              </p>
-              <p className="text-caption text-on-surface-variant">- Community Note</p>
-            </div>
-
-            <div className="break-inside-avoid glass-card rounded-2xl overflow-hidden group cursor-pointer hover:translate-y-[-4px] transition-all">
-              <div className="w-full h-48 bg-gradient-to-br from-tertiary/10 to-primary/10 flex items-center justify-center">
-                <span className="material-symbols-outlined text-5xl text-tertiary/20">image</span>
-              </div>
-              <div className="p-5">
-                <h4 className="font-label-md text-primary mb-1 uppercase tracking-wider">Community</h4>
-                <p className="font-bold text-on-background mb-1">Kisah Mereka yang Telah Bangkit</p>
-                <p className="text-caption text-on-surface-variant">Tim LINUKS</p>
+          <div className="pinterest-grid">
+            {/* Card 1 — Mental Health */}
+            <div className="glass-card rounded-2xl overflow-hidden mb-6 group cursor-pointer">
+              <img 
+                className="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-500" 
+                src="https://lh3.googleusercontent.com/aida-public/AB6AXuBC8lcEj4lgYORw1PmTvHNAFGBEu4f-sAcv6D1GAthzCWGDRJJsjuktK1i-_5ZIOwKJx6rZcON1HqIyuj_nmfil_9fGQebxNT9U8fP6ZqUjiPyHbTLBYb4I5-KrTlT_pLastMYHDDO8R2DDi6Tdz6ZQ8UQtyvX3vG8KP8eWcMCB_jNjlsF4XGwaXmkBjq0VMCYPZMeE6xfINDnzYY2oqu6cs2HT_M14O08Lp-dxwWLi0HqX68XP5Fo0TuSGk94cPka9CiaUICkVxIRs"
+                alt="5 Cara Mengelola Kecemasan"
+              />
+              <div className="p-4">
+                <h4 className="font-label-md text-primary mb-1">MENTAL HEALTH</h4>
+                <p className="font-bold">5 Cara Mengelola Kecemasan Hari Ini</p>
               </div>
             </div>
 
-            <div className="break-inside-avoid glass-card rounded-2xl overflow-hidden group cursor-pointer hover:translate-y-[-4px] transition-all">
-              <div className="w-full h-72 bg-gradient-to-br from-secondary/10 to-tertiary/10 flex items-center justify-center">
-                <span className="material-symbols-outlined text-5xl text-secondary/20">image</span>
-              </div>
-              <div className="p-5">
-                <h4 className="font-label-md text-primary mb-1 uppercase tracking-wider">Self Care</h4>
-                <p className="font-bold text-on-background mb-1">Journaling Sebagai Terapi Mandiri</p>
-                <p className="text-caption text-on-surface-variant">Rina Andari, M.Psi</p>
+            {/* Card 2 — Self Care */}
+            <div className="glass-card rounded-2xl overflow-hidden mb-6 group cursor-pointer">
+              <img 
+                className="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-500" 
+                src="https://lh3.googleusercontent.com/aida-public/AB6AXuDha6LjwUHl2y7x52_pkOFuhBUu0KEKF3ZUephmMc8moCwrTMGRsnaH-ABDTi9O46u1cVNb16D3YmbGEUPqYxXbM9QYoqcNcCOpRjYePoteMS-C0LRo0-7gaFIZ7bRxrXyowskOZ5GppczKEkXmJZoTLh7NExwfupuzOwWc8HU_V1dVWwN_ly7auxRHrG3Q81T1_pNWlQiTc-P87jR8V13nAZU_zn5U_0weyKzf_JZGuHQKqlAJM4cQfNcvaNjgra5CROekRy36FP-Z"
+                alt="Journaling Sebagai Terapi"
+              />
+              <div className="p-4">
+                <h4 className="font-label-md text-secondary mb-1">SELF CARE</h4>
+                <p className="font-bold">Journaling Sebagai Terapi Mandiri</p>
               </div>
             </div>
 
-            <div className="break-inside-avoid glass-card rounded-2xl overflow-hidden group cursor-pointer hover:translate-y-[-4px] transition-all">
-              <div className="w-full h-56 bg-gradient-to-br from-primary/5 to-secondary/5 flex items-center justify-center">
-                <span className="material-symbols-outlined text-5xl text-primary/20">image</span>
+            {/* Card 3 — Quote */}
+            <div className="glass-card rounded-2xl overflow-hidden mb-6 group cursor-pointer">
+              <div className="bg-primary/10 p-8 flex flex-col items-center justify-center text-center min-h-[200px]">
+                <span className="material-symbols-outlined text-[48px] text-primary mb-4">format_quote</span>
+                <p className="italic text-lg font-headline-sm mb-4">"Kamu tidak sendirian. Keberanianmu adalah awal dari cahaya."</p>
+                <span className="text-caption">- Community Note</span>
               </div>
-              <div className="p-5">
-                <h4 className="font-label-md text-primary mb-1 uppercase tracking-wider">Legal Info</h4>
-                <p className="font-bold text-on-background mb-1">Pahami Hakmu di Mata Hukum</p>
-                <p className="text-caption text-on-surface-variant">LBH Jakarta</p>
+            </div>
+
+            {/* Card 4 — Legal Info */}
+            <div className="glass-card rounded-2xl overflow-hidden mb-6 group cursor-pointer">
+              <img 
+                className="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-500" 
+                src="https://lh3.googleusercontent.com/aida-public/AB6AXuBdOzfL4fXzkJ3Ci71XHqgTdrpNkJL5O070CWILWc1aBC9Qx8becDoYjHE10mWXoG2CJvAA8Jsyf3i_pbthWty--Lv7lkRYCdkOUGaatXsg-2cCrvGcCGFe6Kay2tryLxhY9QTZAC8dNBi6LWfG1wWYac5WkzpxGBhW65nSVqer9T_jWKuSTb8GcB_L-tRCEAmG1PUtnTe5ulmjVEHJjIJzP7NyX2rKNreIXYebOW2git4YkZjQjex3m_WBvsFqxuDEoKknayaqnn7J"
+                alt="Pahami Hakmu"
+              />
+              <div className="p-4">
+                <h4 className="font-label-md text-tertiary mb-1">LEGAL INFO</h4>
+                <p className="font-bold">Pahami Hakmu di Mata Hukum</p>
+              </div>
+            </div>
+
+            {/* Card 5 — Community */}
+            <div className="glass-card rounded-2xl overflow-hidden mb-6 group cursor-pointer">
+              <img 
+                className="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-500" 
+                src="https://lh3.googleusercontent.com/aida-public/AB6AXuBL3qpVjQYG9T3NCdHt6gxSh3SC-VFybxuX00HpyndCBg3OaSvrUpe3Xc9bJHGDu0TYumPj8LA8awf-A4suUIfnf2XC3g207-7X_QLzpKplf-IEZOD-ji6NFcLyFF6wvOoCTtOC4LxoGBoP1lrvv2P6iTcidjq4r1s3So7e2hJWhxd6aYKKQ1XxyHJBUJ3uLZIk5O_sMIZNb79ge9oWFB-7VqJqe502RtCd1rO-pl14mS1-_KG3D3ZJkEfqyzyPdMp3mhtNTlvS0uG-"
+                alt="Kisah Mereka"
+              />
+              <div className="p-4">
+                <h4 className="font-label-md text-primary mb-1">COMMUNITY</h4>
+                <p className="font-bold">Kisah Mereka yang Telah Bangkit</p>
               </div>
             </div>
           </div>
