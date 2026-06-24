@@ -104,7 +104,9 @@ export function useProfile() {
   }, []);
 
   useEffect(() => {
-    fetchProfile();
+    queueMicrotask(() => {
+      void fetchProfile();
+    });
   }, [fetchProfile]);
 
   return { data, loading, error, updating, refetch: fetchProfile, updateProfile };

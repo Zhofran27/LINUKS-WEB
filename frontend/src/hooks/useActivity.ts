@@ -61,7 +61,9 @@ export function useActivity(limit: number = 5) {
   }, [limit]);
 
   useEffect(() => {
-    fetchActivities();
+    queueMicrotask(() => {
+      void fetchActivities();
+    });
   }, [fetchActivities]);
 
   return { data, loading, error, refetch: fetchActivities };

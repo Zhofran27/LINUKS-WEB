@@ -6,7 +6,7 @@ import MobileNav from '@/components/layout/MobileNav';
 import AuroraBackground from '@/components/aurora/AuroraBackground';
 
 const authRoutes = ['/login', '/register'];
-const landingRoutes = ['/', '/library']; // ← tambahin /library
+const landingRoutes = ['/', '/library'];
 
 export default function ConditionalLayout({
   children,
@@ -16,16 +16,23 @@ export default function ConditionalLayout({
   const pathname = usePathname();
   const isAuthPage = authRoutes.includes(pathname);
   const isLandingPage = landingRoutes.includes(pathname);
+  const isAdminPage = pathname.startsWith('/admin');
 
-  if (isAuthPage) {
+  if (isAuthPage || isLandingPage) {
     return <>{children}</>;
   }
 
-  if (isLandingPage) {
-    return <>{children}</>; // ← tanpa sidebar
+  if (isAdminPage) {
+    return (
+      <>
+        <AuroraBackground />
+        <div className="relative z-0 min-h-screen">
+          {children}
+        </div>
+      </>
+    );
   }
 
-  // Dashboard/app pages: dengan sidebar
   return (
     <>
       <AuroraBackground />
