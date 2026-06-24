@@ -1,8 +1,8 @@
-import type { Metadata } from 'next';
-import { Sora, Plus_Jakarta_Sans } from 'next/font/google';
-import './globals.css';
-import AuroraBackground from '@/components/aurora/AuroraBackground';
-import ConditionalLayout from '@/components/layout/ConditionalLayout';
+import type { Metadata } from "next";
+import { Sora, Plus_Jakarta_Sans } from "next/font/google";
+import "./globals.css";
+import ConditionalLayout from "@/components/layout/ConditionalLayout";
+
 
 const sora = Sora({
   subsets: ['latin'],
@@ -35,7 +35,6 @@ export default function RootLayout({
         />
       </head>
       <body className={`${sora.variable} ${jakarta.variable} font-sans antialiased`}>
-        <AuroraBackground />
         <ConditionalLayout>
           {children}
         </ConditionalLayout>
