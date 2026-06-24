@@ -34,7 +34,7 @@ export function useProfile() {
         throw new Error('No authentication token found');
       }
 
-      const res = await fetch('/api/user/profile', {
+      const res = await fetch('http://localhost:4000/api/user/profile', {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -66,7 +66,7 @@ export function useProfile() {
         throw new Error('No authentication token found');
       }
 
-      const res = await fetch('/api/user/update', {
+      const res = await fetch('http://localhost:4000/api/user/update', {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
