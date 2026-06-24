@@ -61,3 +61,73 @@ export const loginUser = (payload: LoginPayload) =>
 
 export const getGoogleLoginUrl = () =>
   `${API_URL}/Authuser/google`;
+
+// ============================================================
+// TYPES — LAPORAN
+// ============================================================
+
+export type CreateLaporanPayload = {
+  title: string;
+  category_id: number;
+  chronology: string;
+  description: string;
+  location: string;
+  incident_date: string;
+  is_anonymous: 0 | 1;
+  files?: FileList | null;
+};
+
+export type CreateLaporanResponse = {
+  message: string;
+  reportId: number;
+  report_code: string;
+};
+
+// ============================================================
+// HELPERS — authenticated requests
+// ============================================================
+
+function getToken() {
+  return localStorage.getItem('token') || '';
+}
+
+async function authPost<T>(endpoint: string, body: FormData): Promise<T> {
+  const res = await fetch(`${API_URL}${endpoint}`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${getToken()}`,
+    },
+    body,
+  });
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    throw new Error(data.message || data.error || 'Terjadi kesalahan');
+  }
+
+  return data;
+}
+
+// ============================================================
+// LAPORAN
+// ============================================================
+
+export const createLaporan = (payload: CreateLaporanPayload) => {
+  const formData = new FormData();
+  formData.append('title', payload.title);
+  formData.append('category_id', String(payload.category_id));
+  formData.append('chronology', payload.chronology);
+  formData.append('description', payload.description);
+  formData.append('location', payload.location);
+  formData.append('incident_date', payload.incident_date);
+  formData.append('is_anonymous', String(payload.is_anonymous));
+
+  if (payload.files) {
+    Array.from(payload.files).forEach((file) => {
+      formData.append('files', file);
+    });
+  }
+
+  return authPost<CreateLaporanResponse>('/laporan/create', formData);
+};
