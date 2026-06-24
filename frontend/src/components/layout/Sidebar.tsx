@@ -9,7 +9,6 @@ const menuItems = [
   { icon: "description", label: "Reports", href: "/reports" },
   { icon: "auto_stories", label: "Library", href: "/library" },
   { icon: "person", label: "Profile", href: "/profile" },
-  { icon: "settings", label: "Settings", href: "/settings" },
 ];
 
 export default function Sidebar() {
