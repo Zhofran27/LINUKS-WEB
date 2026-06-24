@@ -8,12 +8,13 @@ type AuthState = {
   token: string | null;
 };
 
-const emptySnapshot: AuthState = { user: null, token: null };
-const serverSnapshot: AuthState = { user: null, token: null };
-
 let lastToken: string | null = null;
 let lastStoredUser: string | null = null;
-let lastSnapshot: AuthState = emptySnapshot;
+let lastSnapshot: AuthState = { user: null, token: null };
+
+// Cache snapshots biar nggak bikin object baru tiap call
+const emptySnapshot: AuthState = { user: null, token: null };
+const serverSnapshot: AuthState = { user: null, token: null };
 
 function subscribeToAuth(onStoreChange: () => void) {
   window.addEventListener('storage', onStoreChange);
@@ -32,7 +33,7 @@ function getAuthSnapshot(): AuthState {
   if (!token || !storedUser) {
     lastToken = null;
     lastStoredUser = null;
-    lastSnapshot = emptySnapshot;
+    lastSnapshot = emptySnapshot; // ← cached
     return lastSnapshot;
   }
 
