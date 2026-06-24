@@ -393,7 +393,7 @@ void main() {
             <div className="glass-card rounded-2xl overflow-hidden mb-6 group cursor-pointer">
               <div className="bg-primary/10 p-8 flex flex-col items-center justify-center text-center min-h-[200px]">
                 <span className="material-symbols-outlined text-[48px] text-primary mb-4">format_quote</span>
-                <p className="italic text-lg font-headline-sm mb-4">"Kamu tidak sendirian. Keberanianmu adalah awal dari cahaya."</p>
+                <p className="italic text-lg font-headline-sm mb-4">&ldquo;Kamu tidak sendirian. Keberanianmu adalah awal dari cahaya.&rdquo;</p>
                 <span className="text-caption">- Community Note</span>
               </div>
             </div>
