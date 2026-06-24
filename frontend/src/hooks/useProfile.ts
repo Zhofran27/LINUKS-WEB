@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { getToken } from '@/lib/auth'; // atau dari mana pun auth.ts lu
 
 interface ProfileData {
   name: string;
@@ -21,6 +20,11 @@ export function useProfile() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [updating, setUpdating] = useState(false);
+
+  const getToken = () => {
+    if (typeof window === 'undefined') return null;
+    return localStorage.getItem('token');
+  };
 
   const fetchProfile = useCallback(async () => {
     try {
@@ -62,7 +66,7 @@ export function useProfile() {
         throw new Error('No authentication token found');
       }
 
-      const res = await fetch('/api/user/profile', {
+      const res = await fetch('/api/user/update', {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
