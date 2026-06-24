@@ -87,6 +87,7 @@ void main() {
 }`;
 
     function cs(type: number, src: string) {
+      if (!gl) throw new Error('WebGL not available');
       const s = gl.createShader(type)!;
       gl.shaderSource(s, src);
       gl.compileShader(s);
@@ -113,6 +114,7 @@ void main() {
     let animationId: number;
     function render(t: number) {
       if (!ro) syncSize();
+      if (!gl || !canvas) return;
       gl.viewport(0, 0, canvas.width, canvas.height);
       if (uTime) gl.uniform1f(uTime, t * 0.001);
       if (uRes) gl.uniform2f(uRes, canvas.width, canvas.height);
@@ -133,10 +135,8 @@ void main() {
         <canvas id="shader-canvas-landing" style={{display: 'block', width: '100%', height: '100%'}} />
       </div>
 
-      {/* Navbar */}
       <nav className="fixed top-0 left-0 w-full z-50 bg-white/20 backdrop-blur-xl border-b border-white/30 shadow-[0_8px_32px_0_rgba(53,9,41,0.05)] h-20 px-6 md:px-12 flex justify-between items-center">
         <div className="flex items-center gap-3">
-          {/* LOGO BESAR */}
           <Image 
             alt="LINUKS Logo" 
             className="h-16 w-16 object-contain" 
@@ -154,7 +154,6 @@ void main() {
         </div>
         
         <div className="flex items-center gap-4">
-          {/* Lonceng ke login */}
           <Link 
             href="/login"
             className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-white/20 transition-colors"
@@ -170,7 +169,6 @@ void main() {
         </div>
       </nav>
 
-      {/* Hero */}
       <header className="pt-40 pb-24 px-6 md:px-12 relative overflow-hidden z-10">
         <div className="max-w-4xl mx-auto text-center">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 glass-card rounded-full text-primary font-label-md mb-8">
@@ -184,7 +182,6 @@ void main() {
             Ruang aman untuk bercerita, melapor, dan mendapatkan dukungan tanpa takut dihakimi. Identitasmu, kendalimu. ✨
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            {/* Cerita Sekarang → ke login */}
             <Link 
               href="/login" 
               className="w-full sm:w-auto px-8 py-4 bg-primary text-white font-label-md rounded-full hover:shadow-lg hover:shadow-primary/20 active:scale-95 transition-all flex items-center justify-center gap-2 shadow-[inset_0_2px_4px_rgba(255,255,255,0.3)]"
@@ -192,7 +189,6 @@ void main() {
               Cerita Sekarang
               <span className="material-symbols-outlined">send</span>
             </Link>
-            {/* Pelajari LINUKS → scroll ke bawah */}
             <button 
               onClick={scrollToSolusi}
               className="w-full sm:w-auto px-8 py-4 glass-card text-primary font-label-md rounded-full hover:bg-white/60 active:scale-95 transition-all"
@@ -203,7 +199,6 @@ void main() {
         </div>
       </header>
 
-      {/* Solusi Aman Untukmu — target scroll */}
       <section ref={solusiRef} className="py-section-gap px-6 md:px-12 relative z-10">
         <div className="max-w-7xl mx-auto">
           <div className="mb-12">
@@ -314,7 +309,6 @@ void main() {
         </div>
       </section>
 
-      {/* Library */}
       <section className="py-section-gap px-6 md:px-12 relative z-10">
         <div className="max-w-7xl mx-auto">
           <div className="flex justify-between items-end mb-12">
