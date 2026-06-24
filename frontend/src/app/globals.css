@@ -201,12 +201,29 @@ body {
 }
 
 .pinterest-grid {
-  columns: 2;
+  columns: 1;
   column-gap: 1.5rem;
 }
 
-@media (min-width: 768px) {
+@media (min-width: 640px) {
+  .pinterest-grid {
+    columns: 2;
+  }
+}
+
+@media (min-width: 1024px) {
   .pinterest-grid {
     columns: 3;
   }
+}
+
+@media (min-width: 1280px) {
+  .pinterest-grid {
+    columns: 4;
+  }
+}
+
+.pinterest-item {
+  break-inside: avoid;
+  margin-bottom: 1.5rem;
 }
