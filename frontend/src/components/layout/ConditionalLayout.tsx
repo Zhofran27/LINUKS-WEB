@@ -5,6 +5,7 @@ import Sidebar from '@/components/layout/Sidebar';
 import MobileNav from '@/components/layout/MobileNav';
 
 const authRoutes = ['/login', '/register'];
+const landingRoutes = ['/', '/library']; // ← tambahin /library
 
 export default function ConditionalLayout({
   children,
@@ -13,11 +14,17 @@ export default function ConditionalLayout({
 }) {
   const pathname = usePathname();
   const isAuthPage = authRoutes.includes(pathname);
+  const isLandingPage = landingRoutes.includes(pathname);
 
   if (isAuthPage) {
     return <>{children}</>;
   }
 
+  if (isLandingPage) {
+    return <>{children}</>; // ← tanpa sidebar
+  }
+
+  // Dashboard/app pages: dengan sidebar
   return (
     <>
       <Sidebar />

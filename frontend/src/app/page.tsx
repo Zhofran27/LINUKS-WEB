@@ -2,32 +2,14 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { useState, useEffect } from 'react';
-
-interface Book {
-  id: string;
-  title: string;
-  authors: string[];
-  thumbnail: string;
-  category: string;
-}
+import { useEffect, useRef } from 'react';
 
 export default function LandingPage() {
-  const [books, setBooks] = useState<Book[]>([]);
-  const [booksLoading, setBooksLoading] = useState(true);
+  const solusiRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    fetch('/api/library')
-      .then((res) => res.json())
-      .then((data) => {
-        setBooks(data.slice(0, 5));
-        setBooksLoading(false);
-      })
-      .catch(() => {
-        setBooks([]);
-        setBooksLoading(false);
-      });
-  }, []);
+  const scrollToSolusi = () => {
+    solusiRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
 
   useEffect(() => {
     const canvas = document.getElementById('shader-canvas-landing') as HTMLCanvasElement;
@@ -105,6 +87,7 @@ void main() {
 }`;
 
     function cs(type: number, src: string) {
+      if (!gl) throw new Error('WebGL not available');
       const s = gl.createShader(type)!;
       gl.shaderSource(s, src);
       gl.compileShader(s);
@@ -131,6 +114,7 @@ void main() {
     let animationId: number;
     function render(t: number) {
       if (!ro) syncSize();
+      if (!gl || !canvas) return;
       gl.viewport(0, 0, canvas.width, canvas.height);
       if (uTime) gl.uniform1f(uTime, t * 0.001);
       if (uRes) gl.uniform2f(uRes, canvas.width, canvas.height);
@@ -146,29 +130,46 @@ void main() {
   }, []);
 
   return (
-    <div className="min-h-screen overflow-x-hidden bg-background">
-      <div className="fixed inset-0 w-full h-full -z-10 opacity-60" style={{display: 'block'}}>
+    <div className="min-h-screen overflow-x-hidden landing-page">
+      <div className="fixed inset-0 w-full h-full z-0" style={{display: 'block'}}>
         <canvas id="shader-canvas-landing" style={{display: 'block', width: '100%', height: '100%'}} />
       </div>
 
-      <nav className="fixed top-0 w-full z-50 bg-white/40 backdrop-blur-xl border-b border-white/50 shadow-[0_8px_32px_0_rgba(53,9,41,0.05)] h-20 px-grid-margin flex justify-between items-center">
-        <div className="flex items-center gap-2">
-          <Image alt="LINUKS Logo" className="h-10 w-10 object-contain" src="/logo.png" width={40} height={40} />
+      <nav className="fixed top-0 left-0 w-full z-50 bg-white/20 backdrop-blur-xl border-b border-white/30 shadow-[0_8px_32px_0_rgba(53,9,41,0.05)] h-20 px-6 md:px-12 flex justify-between items-center">
+        <div className="flex items-center gap-3">
+          <Image 
+            alt="LINUKS Logo" 
+            className="h-16 w-16 object-contain" 
+            src="/logo.png" 
+            width={64} 
+            height={64} 
+          />
           <span className="font-display-lg-mobile text-display-lg-mobile font-extrabold text-primary tracking-tighter">LINUKS</span>
         </div>
+        
         <div className="hidden md:flex items-center gap-8 font-body-md text-body-md">
           <Link href="/" className="text-primary font-bold border-b-2 border-primary pb-1">Home</Link>
-          <Link href="/library" className="text-on-surface-variant hover:bg-primary/10 transition-colors duration-300 px-3 py-1 rounded-lg">Library</Link>
-          <Link href="/reports" className="text-on-surface-variant hover:bg-primary/10 transition-colors duration-300 px-3 py-1 rounded-lg">Reports</Link>
+          <Link href="/library" className="text-on-surface-variant hover:bg-white/10 transition-colors duration-300 px-3 py-1 rounded-lg">Library</Link>
+          <Link href="/reports" className="text-on-surface-variant hover:bg-white/10 transition-colors duration-300 px-3 py-1 rounded-lg">Reports</Link>
         </div>
+        
         <div className="flex items-center gap-4">
-          <Link href="/dashboard" className="px-6 py-2 bg-primary text-white rounded-full font-label-md font-bold hover:shadow-lg transition-all">
-            Masuk
+          <Link 
+            href="/login"
+            className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-white/20 transition-colors"
+          >
+            <span className="material-symbols-outlined text-on-surface-variant text-[24px]">notifications</span>
+          </Link>
+          <Link 
+            href="/login" 
+            className="w-10 h-10 flex items-center justify-center rounded-full border-2 border-primary/30 hover:bg-primary/10 transition-colors"
+          >
+            <span className="material-symbols-outlined text-primary text-[20px]">person</span>
           </Link>
         </div>
       </nav>
 
-      <header className="pt-40 pb-24 px-grid-margin relative overflow-hidden">
+      <header className="pt-40 pb-24 px-6 md:px-12 relative overflow-hidden z-10">
         <div className="max-w-4xl mx-auto text-center">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 glass-card rounded-full text-primary font-label-md mb-8">
             <span className="material-symbols-outlined text-[18px]">auto_awesome</span>
@@ -181,18 +182,24 @@ void main() {
             Ruang aman untuk bercerita, melapor, dan mendapatkan dukungan tanpa takut dihakimi. Identitasmu, kendalimu. ✨
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link href="/dashboard" className="w-full sm:w-auto px-8 py-4 bg-primary text-on-primary font-label-md rounded-full hover:shadow-lg hover:shadow-primary/20 active:scale-95 transition-all flex items-center justify-center gap-2 shadow-[inset_0_2px_4px_rgba(255,255,255,0.3)]">
+            <Link 
+              href="/login" 
+              className="w-full sm:w-auto px-8 py-4 bg-primary text-white font-label-md rounded-full hover:shadow-lg hover:shadow-primary/20 active:scale-95 transition-all flex items-center justify-center gap-2 shadow-[inset_0_2px_4px_rgba(255,255,255,0.3)]"
+            >
               Cerita Sekarang
               <span className="material-symbols-outlined">send</span>
             </Link>
-            <button className="w-full sm:w-auto px-8 py-4 glass-card text-primary font-label-md rounded-full hover:bg-white/60 active:scale-95 transition-all">
+            <button 
+              onClick={scrollToSolusi}
+              className="w-full sm:w-auto px-8 py-4 glass-card text-primary font-label-md rounded-full hover:bg-white/60 active:scale-95 transition-all"
+            >
               Pelajari LINUKS
             </button>
           </div>
         </div>
       </header>
 
-      <section className="py-section-gap px-grid-margin">
+      <section ref={solusiRef} className="py-section-gap px-6 md:px-12 relative z-10">
         <div className="max-w-7xl mx-auto">
           <div className="mb-12">
             <h2 className="font-headline-md text-headline-md text-on-background mb-4">Solusi Aman Untukmu</h2>
@@ -243,7 +250,7 @@ void main() {
         </div>
       </section>
 
-      <section className="py-section-gap px-grid-margin bg-surface-container-low/50">
+      <section className="py-section-gap px-6 md:px-12 bg-white/30 backdrop-blur-sm relative z-10">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="font-headline-md text-headline-md text-on-background mb-4">Empat Langkah Menuju Aman</h2>
@@ -283,7 +290,7 @@ void main() {
         </div>
       </section>
 
-      <section className="py-section-gap px-grid-margin overflow-hidden relative">
+      <section className="py-section-gap px-6 md:px-12 overflow-hidden relative z-10">
         <div className="max-w-7xl mx-auto glass-card p-12 rounded-xl flex flex-col md:flex-row items-center justify-around gap-12 border-primary/20">
           <div className="text-center">
             <div className="text-display-lg-mobile md:text-display-lg font-extrabold text-primary mb-2">5000+</div>
@@ -302,7 +309,7 @@ void main() {
         </div>
       </section>
 
-      <section className="py-section-gap px-grid-margin">
+      <section className="py-section-gap px-6 md:px-12 relative z-10">
         <div className="max-w-7xl mx-auto">
           <div className="flex justify-between items-end mb-12">
             <div>
@@ -315,36 +322,63 @@ void main() {
             </Link>
           </div>
 
-          {booksLoading ? (
-            <div className="pinterest-grid">
-              {[1, 2, 3, 4, 5].map((i) => (
-                <div key={i} className="glass-card rounded-lg overflow-hidden mb-6 animate-pulse">
-                  <div className="w-full h-64 bg-white/20"></div>
-                  <div className="p-4 space-y-2">
-                    <div className="h-3 bg-white/20 rounded-full w-1/3"></div>
-                    <div className="h-4 bg-white/20 rounded-full w-3/4"></div>
-                  </div>
-                </div>
-              ))}
+          <div className="columns-1 md:columns-2 lg:columns-3 gap-6 space-y-6">
+            <div className="break-inside-avoid glass-card rounded-2xl overflow-hidden group cursor-pointer hover:translate-y-[-4px] transition-all">
+              <div className="w-full h-64 bg-gradient-to-br from-primary/10 to-secondary/10 flex items-center justify-center">
+                <span className="material-symbols-outlined text-5xl text-primary/20">image</span>
+              </div>
+              <div className="p-5">
+                <h4 className="font-label-md text-primary mb-1 uppercase tracking-wider">Mental Health</h4>
+                <p className="font-bold text-on-background mb-1">5 Cara Mengelola Kecemasan Hari Ini</p>
+                <p className="text-caption text-on-surface-variant">Dr. Sarah Wijaya</p>
+              </div>
             </div>
-          ) : (
-            <div className="pinterest-grid">
-              {books.map((book) => (
-                <div key={book.id} className="glass-card rounded-lg overflow-hidden mb-6 group cursor-pointer">
-                  <img className="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-500" src={book.thumbnail || 'https://via.placeholder.com/400x600?text=No+Cover'} alt={book.title} />
-                  <div className="p-4">
-                    <h4 className="font-label-md text-primary mb-1">{book.category || 'BOOK'}</h4>
-                    <p className="font-bold">{book.title}</p>
-                    <p className="text-caption text-on-surface-variant">{book.authors?.join(', ') || 'Unknown Author'}</p>
-                  </div>
-                </div>
-              ))}
+
+            <div className="break-inside-avoid glass-card rounded-2xl overflow-hidden group cursor-pointer hover:translate-y-[-4px] transition-all p-8 text-center">
+              <div className="text-primary text-4xl font-serif mb-4">"</div>
+              <p className="font-body-md text-on-background italic mb-4">
+                "Kamu tidak sendirian. Keberanianmu adalah awal dari cahaya."
+              </p>
+              <p className="text-caption text-on-surface-variant">- Community Note</p>
             </div>
-          )}
+
+            <div className="break-inside-avoid glass-card rounded-2xl overflow-hidden group cursor-pointer hover:translate-y-[-4px] transition-all">
+              <div className="w-full h-48 bg-gradient-to-br from-tertiary/10 to-primary/10 flex items-center justify-center">
+                <span className="material-symbols-outlined text-5xl text-tertiary/20">image</span>
+              </div>
+              <div className="p-5">
+                <h4 className="font-label-md text-primary mb-1 uppercase tracking-wider">Community</h4>
+                <p className="font-bold text-on-background mb-1">Kisah Mereka yang Telah Bangkit</p>
+                <p className="text-caption text-on-surface-variant">Tim LINUKS</p>
+              </div>
+            </div>
+
+            <div className="break-inside-avoid glass-card rounded-2xl overflow-hidden group cursor-pointer hover:translate-y-[-4px] transition-all">
+              <div className="w-full h-72 bg-gradient-to-br from-secondary/10 to-tertiary/10 flex items-center justify-center">
+                <span className="material-symbols-outlined text-5xl text-secondary/20">image</span>
+              </div>
+              <div className="p-5">
+                <h4 className="font-label-md text-primary mb-1 uppercase tracking-wider">Self Care</h4>
+                <p className="font-bold text-on-background mb-1">Journaling Sebagai Terapi Mandiri</p>
+                <p className="text-caption text-on-surface-variant">Rina Andari, M.Psi</p>
+              </div>
+            </div>
+
+            <div className="break-inside-avoid glass-card rounded-2xl overflow-hidden group cursor-pointer hover:translate-y-[-4px] transition-all">
+              <div className="w-full h-56 bg-gradient-to-br from-primary/5 to-secondary/5 flex items-center justify-center">
+                <span className="material-symbols-outlined text-5xl text-primary/20">image</span>
+              </div>
+              <div className="p-5">
+                <h4 className="font-label-md text-primary mb-1 uppercase tracking-wider">Legal Info</h4>
+                <p className="font-bold text-on-background mb-1">Pahami Hakmu di Mata Hukum</p>
+                <p className="text-caption text-on-surface-variant">LBH Jakarta</p>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
-      <section className="py-section-gap px-grid-margin bg-white/30 backdrop-blur-sm">
+      <section className="py-section-gap px-6 md:px-12 bg-white/30 backdrop-blur-sm relative z-10">
         <div className="max-w-3xl mx-auto">
           <h2 className="font-headline-md text-headline-md text-center mb-12">Pertanyaan Populer</h2>
           <div className="space-y-4">
@@ -373,7 +407,7 @@ void main() {
         </div>
       </section>
 
-      <footer className="w-full py-section-gap bg-surface-container-low border-t border-outline-variant/30 flex flex-col md:flex-row justify-between items-center px-grid-margin gap-grid-gutter">
+      <footer className="w-full py-section-gap bg-surface-container-low border-t border-outline-variant/30 flex flex-col md:flex-row justify-between items-center px-6 md:px-12 gap-grid-gutter relative z-10">
         <div className="flex flex-col items-center md:items-start gap-4">
           <div className="flex items-center gap-2">
             <Image alt="LINUKS Logo" className="h-8 w-8" src="/logo.png" width={32} height={32} />
