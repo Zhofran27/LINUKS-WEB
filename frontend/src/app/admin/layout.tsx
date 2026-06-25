@@ -7,8 +7,8 @@ import { useEffect } from 'react';
 const adminMenuItems = [
   { icon: 'dashboard', label: 'Dashboard', href: '/admin/dashboard' },
   { icon: 'description', label: 'Manajemen Laporan', href: '/admin/laporan' },
-  { icon: 'auto_stories', label: 'Manajemen Konten', href: '/admin/content' },
-  { icon: 'manage_accounts', label: 'Manajemen Pengguna', href: '/admin/users' },
+  { icon: 'auto_stories', label: 'Manajemen Konten', href: '/admin/contentmanagement' },
+  { icon: 'manage_accounts', label: 'Manajemen Pengguna', href: '/admin/usermanagement' },
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
