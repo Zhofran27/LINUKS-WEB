@@ -53,6 +53,12 @@ export const adminLogin = async (
       });
     }
 
+    if (admin[0].is_active !== 1) {
+      return res.status(403).json({
+        message: 'Akun admin sedang dinonaktifkan',
+      });
+    }
+
     const isPasswordValid = await bcrypt.compare(password, admin[0].password);
 
     if (!isPasswordValid) {
