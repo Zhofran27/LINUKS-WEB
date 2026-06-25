@@ -22,7 +22,7 @@ function AuthHandler() {
       if (role === 'admin') {
         router.push('/admin/dashboard');
       } else {
-        router.push('/dashboard');
+        router.push('/user/dashboard');
       }
     } else {
       // Kalau tidak ada token, balik ke login

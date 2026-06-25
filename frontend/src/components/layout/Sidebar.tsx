@@ -1,18 +1,19 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 
 const menuItems = [
-  { icon: "dashboard", label: "Dashboard", href: "/dashboard" },
-  { icon: "description", label: "Reports", href: "/laporan" },
-  { icon: "auto_stories", label: "Library", href: "/library" },
-  { icon: "person", label: "Profile", href: "/profile" },
+  { icon: "dashboard", label: "Dashboard", href: "/user/dashboard" },
+  { icon: "description", label: "Reports", href: "/user/laporan" },
+  { icon: "auto_stories", label: "Library", href: "/user/library" },
+  { icon: "person", label: "Profile", href: "/user/profile" },
 ];
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const router = useRouter();
   const { user, loading } = useAuth();
 
   const displayName = loading ? '...' : (user?.name || 'Guest');
@@ -62,9 +63,18 @@ export default function Sidebar() {
         })}
       </div>
 
-      <button className="w-full py-4 px-6 bg-primary text-white font-bold rounded-[2rem] active:scale-95 transition-transform flex items-center justify-center gap-2 shadow-lg glow-pink">
-        <span className="material-symbols-outlined">add_circle</span>
-        <span>Create Report</span>
+      <button
+        type="button"
+        onClick={() => {
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          window.dispatchEvent(new Event('auth-change'));
+          router.push('/login');
+        }}
+        className="w-full py-4 px-6 bg-primary text-white font-bold rounded-[2rem] active:scale-95 transition-transform flex items-center justify-center gap-2 shadow-lg glow-pink"
+      >
+        <span className="material-symbols-outlined">logout</span>
+        <span>Logout</span>
       </button>
     </aside>
   );

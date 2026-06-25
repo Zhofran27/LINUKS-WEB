@@ -3,29 +3,9 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { fetchLaporanByUser, Laporan } from '@/lib/api';
+import { STATUS_MAP } from '@/lib/constants/status';
+import LaporanCard from '@/components/laporan/LaporanCard';
 import Link from 'next/link';
-
-const STATUS_MAP: Record<number, { label: string; color: string; bg: string }> = {
-  1: { label: 'Menunggu Verifikasi', color: 'text-amber-700',  bg: 'bg-amber-50 border-amber-200' },
-  2: { label: 'Perlu Klarifikasi',   color: 'text-orange-700', bg: 'bg-orange-50 border-orange-200' },
-  3: { label: 'Dalam Proses',        color: 'text-blue-700',   bg: 'bg-blue-50 border-blue-200' },
-  4: { label: 'Diteruskan Satgas',   color: 'text-purple-700', bg: 'bg-purple-50 border-purple-200' },
-  5: { label: 'Selesai',             color: 'text-green-700',  bg: 'bg-green-50 border-green-200' },
-  6: { label: 'Ditolak',             color: 'text-red-700',    bg: 'bg-red-50 border-red-200' },
-};
-
-const CATEGORY_MAP: Record<number, string> = {
-  1: 'Kekerasan Fisik',
-  2: 'Kekerasan Digital',
-  3: 'Pelecehan',
-  4: 'Lainnya',
-};
-
-function formatDate(dateStr: string) {
-  return new Date(dateStr).toLocaleDateString('id-ID', {
-    day: '2-digit', month: 'short', year: 'numeric',
-  });
-}
 
 export default function LaporanPage() {
   const { user, loading: authLoading } = useAuth();
@@ -88,7 +68,7 @@ export default function LaporanPage() {
         </div>
 
         <Link
-          href="/laporan/buat"
+          href="/user/laporan/buat"
           className="flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-full font-bold text-sm shadow-lg glow-pink transition-all active:scale-95"
         >
           <span className="material-symbols-outlined text-base">add</span>
@@ -129,7 +109,7 @@ export default function LaporanPage() {
           </p>
           {!filterStatus && (
             <Link
-              href="/laporan/buat"
+              href="/user/laporan/buat"
               className="mt-2 px-8 py-3 bg-primary text-white rounded-full font-bold text-sm shadow-lg glow-pink"
             >
               Buat Laporan Pertamamu
@@ -140,64 +120,7 @@ export default function LaporanPage() {
 
       {!isLoading && !error && filtered.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filtered.map((item) => {
-            const status = STATUS_MAP[item.status_id] || STATUS_MAP[1];
-            const category = CATEGORY_MAP[item.category_id] || 'Lainnya';
-            return (
-              <div key={item.id} className="glass-card p-6 flex flex-col gap-3 group hover:shadow-lg transition-all">
-                <div className="flex items-start justify-between gap-2">
-                  <span className="font-caption text-outline text-xs font-bold tracking-widest">
-                    {item.report_code}
-                  </span>
-                  <span className={`px-3 py-0.5 rounded-full text-[10px] font-bold border shrink-0 ${status.bg} ${status.color}`}>
-                    {status.label}
-                  </span>
-                </div>
-
-                <h3 className="font-headline-sm text-headline-sm text-on-surface leading-snug">
-                  {item.title}
-                </h3>
-
-                <div className="flex flex-wrap gap-3 text-xs text-on-surface-variant">
-                  <span className="flex items-center gap-1">
-                    <span className="material-symbols-outlined text-sm">category</span>
-                    {category}
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <span className="material-symbols-outlined text-sm">calendar_today</span>
-                    {formatDate(item.incident_date)}
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <span className="material-symbols-outlined text-sm">location_on</span>
-                    {item.location}
-                  </span>
-                  {item.is_anonymous === 1 && (
-                    <span className="flex items-center gap-1 text-secondary font-bold">
-                      <span className="material-symbols-outlined text-sm">visibility_off</span>
-                      Anonim
-                    </span>
-                  )}
-                </div>
-
-                <p className="font-caption text-on-surface-variant line-clamp-2 text-xs leading-relaxed">
-                  {item.description}
-                </p>
-
-                <div className="mt-auto pt-3 border-t border-white/30 flex items-center justify-between">
-                  <span className="text-[10px] text-outline uppercase font-bold">
-                    {formatDate(item.created_at)}
-                  </span>
-                  <Link
-                    href={`/laporan/${item.id}`}
-                    className="flex items-center gap-1 text-primary font-bold text-xs hover:underline group-hover:translate-x-0.5 transition-transform"
-                  >
-                    Lihat Detail
-                    <span className="material-symbols-outlined text-sm">arrow_forward</span>
-                  </Link>
-                </div>
-              </div>
-            );
-          })}
+          {filtered.map((item) => <LaporanCard key={item.id} item={item} />)}
         </div>
       )}
     </div>
