@@ -189,6 +189,7 @@ export const getLaporanById = async (req: AuthRequest, res: Response, next: Next
             .select({
                 id: reports.id,
                 title: reports.title,
+                name: sql<string>`case when ${reports.is_anonymous} = 1 then 'Anonymous' else ${users.name} end`,
                 description: reports.description,
                 chronology: reports.chronology,
                 location: reports.location,
@@ -204,6 +205,7 @@ export const getLaporanById = async (req: AuthRequest, res: Response, next: Next
             })
             .from(reports)
             .leftJoin(report_files, eq(reports.id, report_files.report_id))
+            .innerJoin(users, eq(users.id, reports.user_id))
             .innerJoin(categories, eq(categories.id, reports.category_id))
             .innerJoin(statuses, eq(statuses.id, reports.status_id))
             .where(eq(reports.id, reportId));
