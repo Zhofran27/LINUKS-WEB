@@ -4,45 +4,11 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useParams, useRouter } from 'next/navigation';
 import { fetchLaporanById, Laporan } from '@/lib/api';
+import LaporanTimeline from '@/components/laporan/LaporanTimeline';
+import { CATEGORY_MAP } from '@/lib/constants/category';
+import { STATUS_MAP } from '@/lib/constants/status';
+import { formatDateTime, formatLongDate } from '@/lib/utils/format';
 import Link from 'next/link';
-
-const STATUS_MAP: Record<number, {
-  label: string; color: string; bg: string; icon: string; progress: number; keterangan: string;
-}> = {
-  1: { label: 'Menunggu Verifikasi', color: 'text-amber-700',  bg: 'bg-amber-50 border-amber-200',  icon: 'schedule',     progress: 15,  keterangan: 'Laporanmu sudah diterima dan sedang dalam antrian verifikasi.' },
-  2: { label: 'Perlu Klarifikasi',   color: 'text-orange-700', bg: 'bg-orange-50 border-orange-200', icon: 'help',         progress: 30,  keterangan: 'Tim kami memerlukan informasi atau dokumen tambahan darimu.' },
-  3: { label: 'Dalam Proses',        color: 'text-blue-700',   bg: 'bg-blue-50 border-blue-200',     icon: 'sync',         progress: 60,  keterangan: 'Laporanmu sedang aktif ditinjau oleh tim profesional kami.' },
-  4: { label: 'Diteruskan Satgas',   color: 'text-purple-700', bg: 'bg-purple-50 border-purple-200', icon: 'groups',       progress: 85,  keterangan: 'Laporan telah diteruskan ke Satgas untuk penanganan lebih lanjut.' },
-  5: { label: 'Selesai',             color: 'text-green-700',  bg: 'bg-green-50 border-green-200',   icon: 'check_circle', progress: 100, keterangan: 'Laporan telah selesai ditangani. Terima kasih atas kepercayaanmu.' },
-  6: { label: 'Ditolak',             color: 'text-red-700',    bg: 'bg-red-50 border-red-200',       icon: 'cancel',       progress: 0,   keterangan: 'Laporan tidak dapat diproses. Hubungi kami jika ada pertanyaan.' },
-};
-
-const CATEGORY_MAP: Record<number, string> = {
-  1: 'Kekerasan Fisik',
-  2: 'Kekerasan Digital',
-  3: 'Pelecehan',
-  4: 'Lainnya',
-};
-
-const TIMELINE_STEPS = [
-  { status_id: 1, label: 'Laporan Diterima',       icon: 'assignment_turned_in' },
-  { status_id: 2, label: 'Perlu Klarifikasi',      icon: 'help_outline' },
-  { status_id: 3, label: 'Sedang Ditinjau',        icon: 'manage_search' },
-  { status_id: 4, label: 'Diteruskan ke Satgas',   icon: 'groups' },
-  { status_id: 5, label: 'Selesai',                icon: 'verified' },
-];
-
-function formatDate(dateStr: string) {
-  return new Date(dateStr).toLocaleDateString('id-ID', {
-    day: '2-digit', month: 'long', year: 'numeric',
-  });
-}
-
-function formatDateTime(dateStr: string) {
-  return new Date(dateStr).toLocaleString('id-ID', {
-    day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit',
-  });
-}
 
 export default function LaporanDetailPage() {
   const { user, loading: authLoading } = useAuth();
@@ -96,7 +62,7 @@ export default function LaporanDetailPage() {
       <div className="max-w-5xl mx-auto glass-card p-12 text-center">
         <span className="material-symbols-outlined text-5xl text-error block mb-3">error</span>
         <p className="font-body-md text-on-surface-variant mb-6">{error || 'Laporan tidak ditemukan.'}</p>
-        <Link href="/laporan" className="px-6 py-3 bg-primary text-white rounded-full font-bold text-sm">
+        <Link href="/user/laporan" className="px-6 py-3 bg-primary text-white rounded-full font-bold text-sm">
           Kembali ke Daftar Laporan
         </Link>
       </div>
@@ -105,7 +71,6 @@ export default function LaporanDetailPage() {
 
   const status = STATUS_MAP[laporan.status_id] || STATUS_MAP[1];
   const category = CATEGORY_MAP[laporan.category_id] || 'Lainnya';
-  const currentStepIndex = TIMELINE_STEPS.findIndex((s) => s.status_id === laporan.status_id);
 
   return (
     <div className="max-w-5xl mx-auto space-y-6 pb-24 lg:pb-0 animate-in fade-in duration-500">
@@ -153,7 +118,7 @@ export default function LaporanDetailPage() {
               </div>
               <div>
                 <p className="text-[10px] font-bold uppercase tracking-widest text-outline mb-1">Tanggal Kejadian</p>
-                <p className="font-body-md text-on-surface">{formatDate(laporan.incident_date)}</p>
+                <p className="font-body-md text-on-surface">{formatLongDate(laporan.incident_date)}</p>
               </div>
               <div className="col-span-2">
                 <p className="text-[10px] font-bold uppercase tracking-widest text-outline mb-1">Lokasi</p>
@@ -187,52 +152,7 @@ export default function LaporanDetailPage() {
         <div className="glass-card p-6">
           <h2 className="font-headline-sm text-headline-sm text-on-surface mb-6">Riwayat Proses</h2>
 
-          <div className="flex flex-col gap-0">
-            {TIMELINE_STEPS.map((step, index) => {
-              const isDone = index < currentStepIndex;
-              const isCurrent = index === currentStepIndex;
-              const isLast = index === TIMELINE_STEPS.length - 1;
-
-              let dotClass = 'bg-white/30 text-on-surface-variant border border-white/40';
-              if (laporan.status_id === 6 && isCurrent) {
-                dotClass = 'bg-red-100 text-red-600 border border-red-200';
-              } else if (isCurrent) {
-                dotClass = 'bg-primary text-white shadow-lg glow-pink';
-              } else if (isDone) {
-                dotClass = 'bg-primary-container text-primary border border-primary/20';
-              }
-
-              return (
-                <div key={step.status_id} className="flex gap-3 relative">
-                  {!isLast && (
-                    <div className={`absolute left-[15px] top-9 bottom-0 w-0.5 ${isDone ? 'bg-primary/30' : 'bg-white/20'}`} />
-                  )}
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 relative z-10 ${dotClass}`}>
-                    <span className="material-symbols-outlined text-sm">{step.icon}</span>
-                  </div>
-                  <div className="pb-6">
-                    <p className={`font-label-md text-label-md leading-tight ${isCurrent ? 'text-primary font-bold' : isDone ? 'text-on-surface' : 'text-on-surface-variant'}`}>
-                      {step.label}
-                    </p>
-                    {isCurrent && <p className="font-caption text-xs text-on-surface-variant mt-0.5">Sedang berlangsung</p>}
-                    {isDone && <p className="font-caption text-xs text-outline mt-0.5">Selesai</p>}
-                  </div>
-                </div>
-              );
-            })}
-
-            {laporan.status_id === 6 && (
-              <div className="flex gap-3 mt-2">
-                <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 bg-red-100 text-red-600 border border-red-200">
-                  <span className="material-symbols-outlined text-sm">cancel</span>
-                </div>
-                <div>
-                  <p className="font-label-md text-label-md text-red-700 font-bold">Laporan Ditolak</p>
-                  <p className="font-caption text-xs text-on-surface-variant mt-0.5">Hubungi kami untuk informasi lebih lanjut.</p>
-                </div>
-              </div>
-            )}
-          </div>
+          <LaporanTimeline statusId={laporan.status_id} rejectedText="Hubungi kami untuk informasi lebih lanjut." />
 
           <div className="mt-6 pt-4 border-t border-white/20">
             <p className="font-caption text-xs text-on-surface-variant mb-3">Ada pertanyaan tentang laporanmu?</p>

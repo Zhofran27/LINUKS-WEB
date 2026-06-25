@@ -189,7 +189,7 @@ void main() {
         
         <div className="hidden md:flex items-center gap-8 font-body-md text-body-md">
           <Link href="/" className="text-primary font-bold border-b-2 border-primary pb-1">Home</Link>
-          <Link href="/library" className="text-on-surface-variant hover:bg-white/10 transition-colors duration-300 px-3 py-1 rounded-lg">Library</Link>
+          <Link href="/user/library" className="text-on-surface-variant hover:bg-white/10 transition-colors duration-300 px-3 py-1 rounded-lg">Library</Link>
         </div>
         
         <div className="flex items-center gap-4">
@@ -356,7 +356,7 @@ void main() {
               <h2 className="font-headline-md text-headline-md text-on-background mb-2">Safe Space Library</h2>
               <p className="text-on-surface-variant">Temukan artikel dan motivasi untuk perjalanan penyembuhanmu.</p>
             </div>
-            <Link href="/library" className="hidden md:flex items-center gap-2 text-primary font-bold group">
+            <Link href="/user/library" className="hidden md:flex items-center gap-2 text-primary font-bold group">
               Lihat Semua
               <span className="material-symbols-outlined group-hover:translate-x-1 transition-transform">chevron_right</span>
             </Link>

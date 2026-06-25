@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { fetchActiveLaporan, fetchUserActivity } from '@/lib/api';
+import { timeAgo } from '@/lib/utils/format';
+import Link from 'next/link';
 
 interface Laporan {
   id: number;
@@ -35,22 +37,6 @@ const STATUS_MAP: Record<number, { label: string; color: string; progress: numbe
 };
 
 const getStatusInfo = (statusId: number) => STATUS_MAP[statusId] || STATUS_MAP[1];
-
-function timeAgo(dateStr: string): string {
-  const date = new Date(dateStr);
-  const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
-  const diffMins = Math.floor(diffMs / 60000);
-  const diffHours = Math.floor(diffMs / 3600000);
-  const diffDays = Math.floor(diffMs / 86400000);
-
-  if (diffMins < 1) return 'Baru saja';
-  if (diffMins < 60) return `${diffMins} menit yang lalu`;
-  if (diffHours < 24) return `${diffHours} jam yang lalu`;
-  if (diffDays === 1) return 'Kemarin';
-  if (diffDays < 7) return `${diffDays} hari yang lalu`;
-  return date.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
-}
 
 function getActivityIcon(activity: string): string {
   const lower = activity.toLowerCase();
@@ -159,10 +145,10 @@ export default function Dashboard() {
               </p>
             </div>
             <div className="flex flex-wrap gap-4 items-center">
-              <button className="px-8 py-4 bg-primary text-white rounded-full font-bold flex items-center gap-3 shadow-xl glow-pink transition-all active:scale-95">
+              <Link href="/user/laporan/buat" className="px-8 py-4 bg-primary text-white rounded-full font-bold flex items-center gap-3 shadow-xl glow-pink transition-all active:scale-95">
                 <span>Buat Laporan Baru</span>
                 <span className="material-symbols-outlined">arrow_forward</span>
-              </button>
+              </Link>
               <span className="font-caption text-on-surface-variant italic">
                 ✨ Privasimu adalah prioritas kami
               </span>
@@ -229,9 +215,9 @@ export default function Dashboard() {
               </div>
             )}
 
-            <button className="mt-4 text-primary font-bold font-label-md hover:underline flex items-center gap-1">
+            <Link href="/user/laporan" className="mt-4 text-primary font-bold font-label-md hover:underline flex items-center gap-1">
               Lihat Riwayat <span className="material-symbols-outlined text-base">open_in_new</span>
-            </button>
+            </Link>
           </div>
         </section>
 
@@ -266,9 +252,9 @@ export default function Dashboard() {
                 </div>
               </div>
             </div>
-            <button className="mt-6 w-full py-3 border border-primary/20 rounded-full text-primary font-bold font-label-md hover:bg-primary/5 transition-colors">
+            <Link href="/user/library" className="mt-6 w-full py-3 border border-primary/20 rounded-full text-primary font-bold font-label-md hover:bg-primary/5 transition-colors text-center block">
               Buka Perpustakaan
-            </button>
+            </Link>
           </div>
         </section>
 

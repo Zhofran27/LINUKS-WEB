@@ -4,10 +4,10 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
 const menuItems = [
-  { icon: 'dashboard', label: 'Home', href: '/dashboard' },
-  { icon: 'description', label: 'Reports', href: '/reports' },
-  { icon: 'auto_stories', label: 'Library', href: '/library' },
-  { icon: 'person', label: 'Profile', href: '/profile' },
+  { icon: 'dashboard', label: 'Home', href: '/user/dashboard' },
+  { icon: 'description', label: 'Reports', href: '/user/laporan' },
+  { icon: 'auto_stories', label: 'Library', href: '/user/library' },
+  { icon: 'person', label: 'Profile', href: '/user/profile' },
 ];
 
 export default function MobileNav() {

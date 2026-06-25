@@ -42,7 +42,7 @@ export default function LoginForm() {
       if (res.user?.role === 'admin') {
         router.push('/admin/dashboard');
       } else {
-        router.push('/dashboard');
+        router.push('/user/dashboard');
       }
     } catch (err: unknown) {
       if (err instanceof Error) {

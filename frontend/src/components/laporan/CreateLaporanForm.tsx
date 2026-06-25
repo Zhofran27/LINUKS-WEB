@@ -513,11 +513,6 @@ function Step4({
           className="px-8 py-3 bg-primary text-white font-bold rounded-full flex items-center gap-2 shadow-lg glow-pink active:scale-95 transition-all disabled:opacity-60"
         >
           {isLoading ? 'Mengirim...' : 'Kirim Laporan'}
-          {!isLoading && (
-            <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-            </svg>
-          )}
         </button>
       </div>
     </div>
@@ -560,7 +555,7 @@ function HalamanSukses({ reportCode }: { reportCode: string }) {
       {/* Tombol Aksi */}
       <div className="flex items-center gap-4 flex-wrap justify-center">
         <button
-          onClick={() => router.push('/laporan')}
+          onClick={() => router.push('/user/laporan')}
           className="px-6 py-3 bg-primary text-white font-bold rounded-full flex items-center gap-2 shadow-lg glow-pink active:scale-95 transition-all text-sm"
         >
           Lacak Laporanku
@@ -569,7 +564,7 @@ function HalamanSukses({ reportCode }: { reportCode: string }) {
           </svg>
         </button>
         <button
-          onClick={() => router.push('/dashboard')}
+          onClick={() => router.push('/user/dashboard')}
           className="flex items-center gap-2 text-sm font-medium text-on-surface-variant hover:text-primary transition"
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -635,7 +630,7 @@ export default function CreateLaporanForm() {
           form={form}
           setForm={setForm}
           onNext={() => setStep(2)}
-          onBack={() => router.push('/laporan')}
+          onBack={() => router.push('/user/laporan')}
         />
       )}
       {step === 2 && (

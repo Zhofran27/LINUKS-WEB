@@ -109,7 +109,7 @@ export default function LibraryPage() {
         
         <div className="hidden md:flex items-center gap-8 font-body-md text-body-md">
           <Link href="/" className="text-on-surface-variant hover:bg-white/10 transition-colors duration-300 px-3 py-1 rounded-lg">Home</Link>
-          <Link href="/library" className="text-primary font-bold border-b-2 border-primary pb-1">Library</Link>
+          <Link href="/user/library" className="text-primary font-bold border-b-2 border-primary pb-1">Library</Link>
         </div>
         
         <div className="flex items-center gap-4">
