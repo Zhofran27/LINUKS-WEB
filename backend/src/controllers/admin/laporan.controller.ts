@@ -18,6 +18,7 @@ export const getLaporan = async (req: AuthRequest, res: Response, next: NextFunc
         const report = await db
             .select({
                 id: reports.id,
+                name: sql<string>`case when ${reports.is_anonymous} = 1 then 'Anonymous' else ${users.name} end`,
                 category: categories.name,
                 status: statuses.name,
                 incident_date: reports.incident_date,
@@ -27,6 +28,7 @@ export const getLaporan = async (req: AuthRequest, res: Response, next: NextFunc
             })
             .from(reports)
             .leftJoin(report_files, eq(reports.id, report_files.report_id))
+            .innerJoin(users, eq(users.id, reports.user_id))
             .innerJoin(categories, eq(categories.id, reports.category_id))
             .innerJoin(statuses, eq(statuses.id, reports.status_id))
 
