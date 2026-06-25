@@ -190,6 +190,7 @@ export const getLaporanById = async (req: AuthRequest, res: Response, next: Next
                 id: reports.id,
                 title: reports.title,
                 name: sql<string>`case when ${reports.is_anonymous} = 1 then 'Anonymous' else ${users.name} end`,
+                email: sql<string>`case when ${reports.is_anonymous} = 1 then 'Anonymous' else ${users.email} end`,
                 description: reports.description,
                 chronology: reports.chronology,
                 location: reports.location,
