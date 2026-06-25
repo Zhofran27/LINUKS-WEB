@@ -148,6 +148,12 @@ export const login = async (
       });
     }
 
+    if (user[0].is_active !== 1) {
+      return res.status(403).json({
+        message: 'Akun Anda sedang dinonaktifkan',
+      });
+    }
+
     const isPasswordValid = await bcrypt.compare(password, user[0].password);
 
     if (!isPasswordValid) {
@@ -219,6 +225,12 @@ export const googleCallback = async (req: Request, res: Response, next: NextFunc
           role: 'user',
         })
         .returning();
+    }
+
+    if (user[0].is_active !== 1) {
+      return res.status(403).json({
+        error: 'Akun Anda sedang dinonaktifkan',
+      });
     }
 
     const token = createToken(user[0]);
