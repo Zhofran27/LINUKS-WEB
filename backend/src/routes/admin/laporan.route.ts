@@ -1,6 +1,6 @@
 import { Router } from 'express';
-import { getLaporan, getLaporanById, getLaporanDetail, getLaporanOverview, getLaporanPerMonth, getLaporanByCategory, getLaporanByNama, updateStatusLaporan } from '../../controllers/admin/laporan.controller';
-import { authorizeRole, verifyToken } from '../../middlewares/auth.middleware';
+import { getLaporan, getLaporanById, getLaporanDetail, getLaporanOverview, getLaporanPerMonth, getLaporanByCategory, getLaporanByNama, updateStatusLaporan } from '../../controllers/admin/laporan.controller.js';
+import { authorizeRole, verifyToken } from '../../middlewares/auth.middleware.js';
 
 const router = Router();
 

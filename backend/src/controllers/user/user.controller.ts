@@ -1,9 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
 import bcrypt from 'bcryptjs';
-import { AuthRequest } from '../../middlewares/auth.middleware';
+import { AuthRequest } from '../../middlewares/auth.middleware.js';
 import { eq } from 'drizzle-orm';
-import { db } from '../../databases/db';
-import { users } from '../../databases/schema';
+import { db } from '../../databases/db.js';
+import { users } from '../../databases/schema.js';
 import { Activity } from '../../models/activity.model.js';
 
 export const ProfileUser = async (

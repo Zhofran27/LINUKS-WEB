@@ -1,10 +1,10 @@
 import {  Request, Response, NextFunction } from 'express';
-import { AuthRequest } from '../../middlewares/auth.middleware';
+import { AuthRequest } from '../../middlewares/auth.middleware.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { eq } from 'drizzle-orm';
-import { db } from '../../databases/db';
-import { users } from '../../databases/schema';
+import { db } from '../../databases/db.js';
+import { users } from '../../databases/schema.js';
 import { Activity } from '../../models/activity.model.js';
 
 

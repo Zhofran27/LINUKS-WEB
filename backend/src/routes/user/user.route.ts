@@ -1,8 +1,8 @@
 import { Router } from 'express';
-import { validateBody } from '../../middlewares/validation.middleware';
-import { ProfileUser, updateUser, deleteUser, getRecentActivity } from '../../controllers/user/user.controller';
-import { updateSchema } from '../../schemas/user/user.schema';
-import { verifyToken } from '../../middlewares/auth.middleware';
+import { validateBody } from '../../middlewares/validation.middleware.js';
+import { ProfileUser, updateUser, deleteUser, getRecentActivity } from '../../controllers/user/user.controller.js';
+import { updateSchema } from '../../schemas/user/user.schema.js';
+import { verifyToken } from '../../middlewares/auth.middleware.js';
 
 const router = Router();
 

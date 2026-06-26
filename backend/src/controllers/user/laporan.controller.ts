@@ -1,10 +1,10 @@
 import { Request, Response, NextFunction } from 'express';
-import { AuthRequest } from '../../middlewares/auth.middleware';
+import { AuthRequest } from '../../middlewares/auth.middleware.js';
 import { and, eq, ne } from 'drizzle-orm';
 import { v2 as cloudinary } from 'cloudinary';
-import { db } from '../../databases/db';
-import { categories, reports, statuses, users, report_files } from '../../databases/schema';
-import { formatReportCode, withReportCode } from '../../utils/report-code';
+import { db } from '../../databases/db.js';
+import { categories, reports, statuses, users, report_files } from '../../databases/schema.js';
+import { formatReportCode, withReportCode } from '../../utils/report-code.js';
 import { Activity } from '../../models/activity.model.js';
 
 const getCloudinaryPublicId = (filePath: string) => {

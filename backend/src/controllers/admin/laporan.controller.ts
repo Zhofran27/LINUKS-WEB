@@ -1,11 +1,11 @@
 import { Request, Response, NextFunction } from 'express'
-import { AuthRequest } from '../../middlewares/auth.middleware';
+import { AuthRequest } from '../../middlewares/auth.middleware.js';
 import { and, count, eq, gte, lt, notInArray, sql } from 'drizzle-orm';
-import { db } from '../../databases/db';
-import { reports, categories, statuses, report_files, users } from '../../databases/schema';
-import { withReportCode } from '../../utils/report-code';
+import { db } from '../../databases/db.js';
+import { reports, categories, statuses, report_files, users } from '../../databases/schema.js';
+import { withReportCode } from '../../utils/report-code.js';
 import { Activity } from '../../models/activity.model.js';
-import { sendStatusUpdateEmail } from '../../utils/mailer';
+import { sendStatusUpdateEmail } from '../../utils/mailer.js';
 
 const getCountValue = (result: { total: number }[]) => result[0]?.total ?? 0;
 

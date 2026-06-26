@@ -3,8 +3,8 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { eq } from 'drizzle-orm';
 import { google } from 'googleapis';
-import { db } from '../../databases/db';
-import { users } from '../../databases/schema';
+import { db } from '../../databases/db.js';
+import { users } from '../../databases/schema.js';
 import { Activity } from '../../models/activity.model.js';
 
 const getJwtSecret = () => {

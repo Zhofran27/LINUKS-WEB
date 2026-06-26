@@ -1,7 +1,7 @@
 import { Router } from 'express';
-import { validateBody, validateParams } from '../../middlewares/validation.middleware';
-import { registerSchema, loginSchema } from '../../schemas/user/auth.schema';
-import { register, login, googleLogin, googleCallback } from '../../controllers/user/auth.controller';
+import { validateBody, validateParams } from '../../middlewares/validation.middleware.js';
+import { registerSchema, loginSchema } from '../../schemas/user/auth.schema.js';
+import { register, login, googleLogin, googleCallback } from '../../controllers/user/auth.controller.js';
 
 const router = Router();
 
