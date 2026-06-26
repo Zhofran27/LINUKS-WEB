@@ -12,5 +12,6 @@
     "forceConsistentCasingInFileNames": true,
     "noEmit": false, // Allow emitting output
     "isolatedModules": true // Required for using ESM modules
-  }
+  },
+  "include": ["src/**/*.ts"]
 }
