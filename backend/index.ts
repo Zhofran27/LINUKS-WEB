@@ -6,7 +6,7 @@ import  cors  from 'cors';
 import { eq } from 'drizzle-orm';
 import appRoutes from './src/routes/index.js';
 const app = express();
-const PORT = 4000
+const PORT = Number(process.env.PORT) || 4000;
 
 app.use(
   cors({
@@ -31,11 +31,10 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
   });
 });
 
-if (process.env.NODE_ENV !== 'production') {
-  connectMongoDB();
-  app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
-  });
-}
+connectMongoDB();
+
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});
 
 export default app;
