@@ -1,6 +1,6 @@
 import { Router } from 'express';
-import { profileAdmin, getRecentActivity } from '../../controllers/admin/admin.controller';
-import { verifyToken } from '../../middlewares/auth.middleware';
+import { profileAdmin, getRecentActivity } from '../../controllers/admin/admin.controller.js';
+import { verifyToken } from '../../middlewares/auth.middleware.js';
 
 const router = Router();
 

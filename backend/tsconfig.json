@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
-    "module": "ESNext", // Use ESNext for ESM
+    "module": "NodeNext", // Use NodeNext for ESM with tsc
     "target": "ES2020", // Target modern ECMAScript versions
-    "moduleResolution": "bundler", // Use modern ESM module resolution
+    "moduleResolution": "NodeNext", // Required for tsc-compiled ESM with .js extensions
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "outDir": "./dist", // Output directory for compiled files

@@ -1,9 +1,9 @@
 import { Router } from 'express';
-import { validateBody, validateParams } from '../../middlewares/validation.middleware';
-import { createLaporanSchema } from '../../schemas/user/laporan.schema';
-import { CreateLaporan, deleteLaporan, getLaporanActive, getLaporanByUser, getLaporanByNama, getLaporanById, getLaporanByCategory } from '../../controllers/user/laporan.controller';
-import { verifyToken, authorizeRole } from '../../middlewares/auth.middleware';
-import { upload } from '../../middlewares/upload.middleware';
+import { validateBody, validateParams } from '../../middlewares/validation.middleware.js';
+import { createLaporanSchema } from '../../schemas/user/laporan.schema.js';
+import { CreateLaporan, deleteLaporan, getLaporanActive, getLaporanByUser, getLaporanByNama, getLaporanById, getLaporanByCategory } from '../../controllers/user/laporan.controller.js';
+import { verifyToken, authorizeRole } from '../../middlewares/auth.middleware.js';
+import { upload } from '../../middlewares/upload.middleware.js';
 
 const router = Router();
 

@@ -1,6 +1,6 @@
 import { Router } from 'express';
-import { deactivateUser, getAllUsers, reactivateUser, updateRoleUser } from '../../controllers/admin/userManagement.controller';
-import { authorizeRole, verifyToken } from '../../middlewares/auth.middleware';
+import { deactivateUser, getAllUsers, reactivateUser, updateRoleUser } from '../../controllers/admin/userManagement.controller.js';
+import { authorizeRole, verifyToken } from '../../middlewares/auth.middleware.js';
 
 const router = Router();
 
