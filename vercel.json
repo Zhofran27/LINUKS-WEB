@@ -4,13 +4,15 @@
       "root": "Frontend",
       "framework": "nextjs",
       "buildCommand": "npm run build",
-      "installCommand": "npm install"
+      "installCommand": "npm install",
+      "routePrefix": "/"
     },
     "backend": {
       "root": "Backend",
       "framework": "express",
       "buildCommand": "npm run build",
-      "installCommand": "npm install --legacy-peer-deps"
+      "installCommand": "npm install --legacy-peer-deps",
+      "routePrefix": "/api"
     }
   }
 }
