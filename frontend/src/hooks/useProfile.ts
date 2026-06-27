@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useCallback } from 'react';
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
+
 interface ProfileData {
   name: string;
   email: string;
@@ -34,7 +36,7 @@ export function useProfile() {
         throw new Error('No authentication token found');
       }
 
-      const res = await fetch('http://localhost:4000/api/user/profile', {
+      const res = await fetch(`${API_URL}/user/profile`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -66,7 +68,7 @@ export function useProfile() {
         throw new Error('No authentication token found');
       }
 
-      const res = await fetch('http://localhost:4000/api/user/update', {
+      const res = await fetch(`${API_URL}/user/update`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
