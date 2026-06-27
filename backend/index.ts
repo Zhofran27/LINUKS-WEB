@@ -30,10 +30,10 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
 connectMongoDB();
 
 // Hanya listen di lokal, Vercel handle sendiri di production
-if (process.env.NODE_ENV !== 'production') {
-  app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-  });
-}
+
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});
+
 
 export default app;
