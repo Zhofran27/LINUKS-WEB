@@ -1,14 +1,14 @@
 {
   "experimentalServices": {
     "frontend": {
-      "root": "Frontend",
+      "root": "frontend",
       "framework": "nextjs",
       "buildCommand": "npm run build",
       "installCommand": "npm install",
       "routePrefix": "/"
     },
     "backend": {
-      "root": "Backend",
+      "root": "backend",
       "framework": "express",
       "buildCommand": "npm run build",
       "installCommand": "npm install --legacy-peer-deps",
